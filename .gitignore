@@ -1,0 +1,11 @@
+*.jar
+
+/.metadata
+/.settings
+/input
+/output
+
+/target
+
+/.project
+/.classpath
