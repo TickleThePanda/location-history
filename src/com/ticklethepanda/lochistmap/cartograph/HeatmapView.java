@@ -8,26 +8,26 @@ import java.awt.Dimension;
 
 public class HeatmapView extends JPanel {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2412559105619917762L;
-	private BufferedImage bi;
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -2412559105619917762L;
+  private BufferedImage bi;
 
-	public HeatmapView() {
-		setPreferredSize(new Dimension(600, 600));
-		setSize(new Dimension(600, 600));
-		bi = null;
-	}
+  public HeatmapView() {
+    setPreferredSize(new Dimension(600, 600));
+    setSize(new Dimension(600, 600));
+    bi = null;
+  }
 
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		if (bi != null)
-			g.drawImage(bi, 0, 0, null);
-	}
-	
-	public void setHeatmap(BufferedImage map) {
-		bi = map;
-		this.repaint();
-	}
+  public void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    if (bi != null)
+      g.drawImage(bi, 0, 0, null);
+  }
+
+  public void setHeatmap(BufferedImage map) {
+    bi = map;
+    this.repaint();
+  }
 }

@@ -1,99 +1,70 @@
 package com.ticklethepanda.lochistmap.cartograph.ecp;
 
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 
 import com.ticklethepanda.lochistmap.cartograph.Point;
 import com.ticklethepanda.lochistmap.cartograph.Heatmap;
 import com.ticklethepanda.lochistmap.cartograph.HeatmapFactory;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import com.ticklethepanda.lochistmap.cartograph.googlelocation.Location;
 
 public class EcpHeatmapFactory implements HeatmapFactory {
-	public static long ACCURACY_CUTOFF = 10000;
+  private final EcpPoint[] ecpMapArray;
 
-	private EcpPoint[] convertToECPPoints(GoogleLocation[] locationArray) {
-		ArrayList<EcpPoint> mapPointArrayList = new ArrayList<EcpPoint>();
-		for (int i = 0; i < locationArray.length; i++) {
-			GoogleLocation location = locationArray[i];
-			if (location.getAccuracy() < accuracyThreshold) {
-				mapPointArrayList.add(EcpPoint
-						.convertLocationToECP(location));
-			}
-		}
+  private final Rectangle2D boundingRectangle;
 
-		EcpPoint[] mapPointList = new EcpPoint[mapPointArrayList.size()];
+  public EcpHeatmapFactory(EcpPoint[] points) {
+    this.ecpMapArray = points;
+    this.boundingRectangle = Point.getBoundingRectangle(ecpMapArray);
+  }
 
-		for (int i = 0; i < mapPointArrayList.size(); i++) {
-			mapPointList[i] = mapPointArrayList.get(i);
-		}
+  public Heatmap createHeatmap(int nColumns) {
 
-		return mapPointList;
-	}
+    double minX = ecpMapArray[0].getX();
+    double maxX = ecpMapArray[0].getX();
 
-	private final EcpPoint[] ecpMapArray;
+    double minY = ecpMapArray[0].getY();
+    double maxY = ecpMapArray[0].getY();
 
-	private final Rectangle2D boundingRectangle;
+    for (EcpPoint mapPoint : ecpMapArray) {
+      if (mapPoint.getX() < minX)
+        minX = mapPoint.getX();
+      if (mapPoint.getX() > maxX)
+        maxX = mapPoint.getX();
 
-	private final long accuracyThreshold;
+      if (mapPoint.getY() < minY)
+        minY = mapPoint.getY();
+      if (mapPoint.getY() > maxY)
+        maxY = mapPoint.getY();
+    }
 
-	public EcpHeatmapFactory(GoogleLocation[] locationArray) {
-		this(locationArray, ACCURACY_CUTOFF);
-	}
+    double difX = maxX - minX;
+    double difY = maxY - minY;
 
-	public EcpHeatmapFactory(GoogleLocation[] locationArray, long accuracyThreshold) {
-		this.accuracyThreshold = accuracyThreshold;
-		this.ecpMapArray = convertToECPPoints(locationArray);
-		this.boundingRectangle = Point.getBoundingRectangle(ecpMapArray);
-	}
+    double ratio = difY / difX;
 
-	public Heatmap createHeatmap(int nColumns) {
+    double height = (int) ((double) nColumns * ratio);
 
-		double minX = ecpMapArray[0].getX();
-		double maxX = ecpMapArray[0].getX();
+    double nBlocksHori = nColumns;
+    double nBlocksVert = height;
 
-		double minY = ecpMapArray[0].getY();
-		double maxY = ecpMapArray[0].getY();
+    int array[][] = new int[(int) nBlocksHori + 1][(int) nBlocksVert + 1];
 
-		for (EcpPoint mapPoint : ecpMapArray) {
-			if (mapPoint.getX() < minX)
-				minX = mapPoint.getX();
-			if (mapPoint.getX() > maxX)
-				maxX = mapPoint.getX();
+    for (EcpPoint mapPoint : ecpMapArray) {
+      int x = (int) (((mapPoint.getX() - minX) / (difX)) * nBlocksHori);
+      int y = (int) (((mapPoint.getY() - minY) / (difY)) * nBlocksVert);
+      array[x][y]++;
+    }
 
-			if (mapPoint.getY() < minY)
-				minY = mapPoint.getY();
-			if (mapPoint.getY() > maxY)
-				maxY = mapPoint.getY();
-		}
+    return new Heatmap(array);
+  }
 
-		double difX = maxX - minX;
-		double difY = maxY - minY;
+  @Override
+  public EcpPoint[] getPoints() {
+    return this.ecpMapArray;
+  }
 
-		double ratio = difY / difX;
-
-		double height = (int) ((double) nColumns * ratio);
-
-		double nBlocksHori = nColumns;
-		double nBlocksVert = height;
-
-		int array[][] = new int[(int) nBlocksHori + 1][(int) nBlocksVert + 1];
-
-		for (EcpPoint mapPoint : ecpMapArray) {
-			int x = (int) (((mapPoint.getX() - minX) / (difX)) * nBlocksHori);
-			int y = (int) (((mapPoint.getY() - minY) / (difY)) * nBlocksVert);
-			array[x][y]++;
-		}
-		
-		return new Heatmap(array);
-	}
-
-	@Override
-	public EcpPoint[] getPoints() {
-		return this.ecpMapArray;
-	}
-
-	@Override
-	public Rectangle2D getBoundingRectangle() {
-		return this.boundingRectangle;
-	}
+  @Override
+  public Rectangle2D getBoundingRectangle() {
+    return this.boundingRectangle;
+  }
 }

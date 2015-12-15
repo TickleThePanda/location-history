@@ -10,131 +10,131 @@ import com.ticklethepanda.lochistmap.cartograph.Heatmap;
 import com.ticklethepanda.lochistmap.cartograph.HeatmapPainter;
 import com.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
 import com.ticklethepanda.lochistmap.cartograph.ecp.EcpPoint;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocationArray;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import com.ticklethepanda.lochistmap.cartograph.googlelocation.LocationHistoryLoader;
+import com.ticklethepanda.lochistmap.cartograph.googlelocation.Location;
 import com.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
 import com.ticklethepanda.lochistmap.imagewriter.ImageWriter;
 
 public class ComparisonImageDriver {
 
-	private static final int IMAGE_WIDTH = 540;
+  private static final int IMAGE_WIDTH = 540;
 
-	private static final int IMAGE_BLOCK_SIZE = 4;
+  private static final int IMAGE_BLOCK_SIZE = 4;
 
-	private static final double IMAGE_HORIZ_N_BLOCKS = (double) IMAGE_WIDTH
-			/ (double) IMAGE_BLOCK_SIZE;
+  private static final double IMAGE_HORIZ_N_BLOCKS = (double) IMAGE_WIDTH
+      / (double) IMAGE_BLOCK_SIZE;
 
-	private static final String JESS_FILE_NAME = "jess-loc-hist";
-	private static final String PANDA_FILE_NAME = "panda-loc-hist";
+  private static final String JESS_FILE_NAME = "jess-loc-hist";
+  private static final String PANDA_FILE_NAME = "panda-loc-hist";
 
-	private static final long MAXIMUM_TIME_DIFF_MINUTES = 1;
-	private static final long MAXIMUM_TIME_DIFF_SECONDS = MAXIMUM_TIME_DIFF_MINUTES * 60;
-	private static final long MAXIMUM_TIME_DIFF_MILLIS = MAXIMUM_TIME_DIFF_SECONDS * 1000;
+  private static final long MAXIMUM_TIME_DIFF_MINUTES = 1;
+  private static final long MAXIMUM_TIME_DIFF_SECONDS = MAXIMUM_TIME_DIFF_MINUTES * 60;
+  private static final long MAXIMUM_TIME_DIFF_MILLIS = MAXIMUM_TIME_DIFF_SECONDS * 1000;
 
-	private static final double MAXIMUM_UNIT_DISTANCE_BETWEEN_POINTS = 1000000;
+  private static final double MAXIMUM_UNIT_DISTANCE_BETWEEN_POINTS = 1000000;
 
-	public static void main(String[] args) throws JsonSyntaxException,
-			JsonIOException, IOException {
-		long startTime = System.currentTimeMillis();
-		System.out.println("Loading Person 1's locations from file...");
+  public static void main(String[] args) throws JsonSyntaxException,
+      JsonIOException, IOException {
+    long startTime = System.currentTimeMillis();
+    System.out.println("Loading Person 1's locations from file...");
 
-		final GoogleLocation[] locations1 = GoogleLocationArray.loadFromFile(
-				JESS_FILE_NAME).getLocations();
+    final Location[] locations1 = LocationHistoryLoader.loadFromFile(
+        JESS_FILE_NAME).getLocations();
 
-		System.out.printf("Person 1 points %,d\n", locations1.length);
+    System.out.printf("Person 1 points %,d\n", locations1.length);
 
-		System.out.println("Loading Person 2's locations from file...");
+    System.out.println("Loading Person 2's locations from file...");
 
-		final GoogleLocation[] locations2 = GoogleLocationArray.loadFromFile(
-				PANDA_FILE_NAME).getLocations();
+    final Location[] locations2 = LocationHistoryLoader.loadFromFile(
+        PANDA_FILE_NAME).getLocations();
 
-		System.out.printf("person 2 points %,d\n", locations2.length);
+    System.out.printf("person 2 points %,d\n", locations2.length);
 
-		System.out.println("Comparing Points");
+    System.out.println("Comparing Points");
 
-		ArrayList<GoogleLocation> overlappingLocations = combineLocations(locations1,
-				locations2, MAXIMUM_TIME_DIFF_MILLIS,
-				MAXIMUM_UNIT_DISTANCE_BETWEEN_POINTS);
+    ArrayList<Location> overlappingLocations = combineLocations(locations1,
+        locations2, MAXIMUM_TIME_DIFF_MILLIS,
+        MAXIMUM_UNIT_DISTANCE_BETWEEN_POINTS);
 
-		GoogleLocation[] locationArray = new GoogleLocation[overlappingLocations.size()];
-		{
-			int i = 0;
-			for (GoogleLocation loc : overlappingLocations) {
-				locationArray[i++] = loc;
-			}
-		}
-		System.out.printf("combination points %,d\n", locationArray.length);
+    Location[] locationArray = new Location[overlappingLocations.size()];
+    {
+      int i = 0;
+      for (Location loc : overlappingLocations) {
+        locationArray[i++] = loc;
+      }
+    }
+    System.out.printf("combination points %,d\n", locationArray.length);
 
-		System.out.println("Converting ECP coordinate system...");
-		final EcpPoint[] points = new EcpHeatmapFactory(locationArray).getPoints();
+    System.out.println("Converting ECP coordinate system...");
+    final EcpPoint[] points = EcpPoint.convertFromLocations(locationArray);
 
-		System.out.println("Converting array to Quadtree...");
-		Quadtree quadtree = new Quadtree(points);
+    System.out.println("Converting array to Quadtree...");
+    Quadtree quadtree = new Quadtree(points);
 
-		int brightness = (int) Math.pow(2.5, 6.0);
-		System.out.println("Rendering image...");
+    int brightness = (int) Math.pow(2.5, 6.0);
+    System.out.println("Rendering image...");
 
-		Heatmap heatmap = quadtree.convertToHeatmap(IMAGE_HORIZ_N_BLOCKS);
-		HeatmapPainter heatmapPainter = new HeatmapPainter();
-		heatmapPainter.setBrightnessGraphScale(brightness);
-		BufferedImage image = heatmapPainter.paintHeatmap(heatmap, IMAGE_BLOCK_SIZE);
+    Heatmap heatmap = quadtree.convertToHeatmap(IMAGE_HORIZ_N_BLOCKS);
+    HeatmapPainter heatmapPainter = new HeatmapPainter();
+    heatmapPainter.setBrightnessGraphScale(brightness);
+    BufferedImage image = heatmapPainter.paintHeatmap(heatmap, IMAGE_BLOCK_SIZE);
 
-		System.out.println("Outputting image...");
-		ImageWriter.writeImageOut(image, "combi");
+    System.out.println("Outputting image...");
+    ImageWriter.writeImageOut(image, "combi");
 
-		long endTime = System.currentTimeMillis();
+    long endTime = System.currentTimeMillis();
 
-		long timeTaken = endTime - startTime;
+    long timeTaken = endTime - startTime;
 
-		System.out.printf("Time taken to generate: %.3f s.\n",
-				(double) (timeTaken) / 1000.0);
+    System.out.printf("Time taken to generate: %.3f s.\n",
+        (double) (timeTaken) / 1000.0);
 
-	}
+  }
 
-	private static ArrayList<GoogleLocation> combineLocations(
-			final GoogleLocation[] locations1, final GoogleLocation[] locations2,
-			long maxTimeDiffMillis, double maxDistDiffUnits) {
-		ArrayList<GoogleLocation> overlappingLocations = new ArrayList<GoogleLocation>();
+  private static ArrayList<Location> combineLocations(
+      final Location[] locations1, final Location[] locations2,
+      long maxTimeDiffMillis, double maxDistDiffUnits) {
+    ArrayList<Location> overlappingLocations = new ArrayList<Location>();
 
-		int index1 = 0;
-		for (int index2 = 0; index2 < locations2.length; index2++) {
+    int index1 = 0;
+    for (int index2 = 0; index2 < locations2.length; index2++) {
 
-			// get counter ahead for person 1
-			while (true) {
-				long timeDiff = locations1[index1].getTimestampMs()
-						- locations2[index2].getTimestampMs();
-				if (index1 > locations1.length - 2
-						|| timeDiff < maxTimeDiffMillis) {
-					break;
-				}
+      // get counter ahead for person 1
+      while (true) {
+        long timeDiff = locations1[index1].getTimestampMs()
+            - locations2[index2].getTimestampMs();
+        if (index1 > locations1.length - 2
+            || timeDiff < maxTimeDiffMillis) {
+          break;
+        }
 
-				index1++;
-			}
+        index1++;
+      }
 
-			int iBackJes = index1;
-			// work backwards to find match.
-			while (iBackJes >= 0) {
-				long timeDiff = locations1[iBackJes].getTimestampMs()
-						- locations2[index2].getTimestampMs();
-				// we're too far back in time now, break.
-				if (timeDiff > maxTimeDiffMillis) {
-					break;
-				}
+      int iBackJes = index1;
+      // work backwards to find match.
+      while (iBackJes >= 0) {
+        long timeDiff = locations1[iBackJes].getTimestampMs()
+            - locations2[index2].getTimestampMs();
+        // we're too far back in time now, break.
+        if (timeDiff > maxTimeDiffMillis) {
+          break;
+        }
 
-				double distBetweenX = locations2[index2].getX()
-						- locations1[iBackJes].getX();
-				double distBetweenY = locations2[index2].getY()
-						- locations1[iBackJes].getY();
-				double locationDiff = (long) Math.sqrt(distBetweenX
-						* distBetweenX + distBetweenY * distBetweenY);
-				if (locationDiff < maxDistDiffUnits) {
-					overlappingLocations.add(locations2[index2]);
-				}
+        double distBetweenX = locations2[index2].getX()
+            - locations1[iBackJes].getX();
+        double distBetweenY = locations2[index2].getY()
+            - locations1[iBackJes].getY();
+        double locationDiff = (long) Math.sqrt(distBetweenX
+            * distBetweenX + distBetweenY * distBetweenY);
+        if (locationDiff < maxDistDiffUnits) {
+          overlappingLocations.add(locations2[index2]);
+        }
 
-				// decreases index so increases time difference
-				iBackJes--;
-			}
-		}
-		return overlappingLocations;
-	}
+        // decreases index so increases time difference
+        iBackJes--;
+      }
+    }
+    return overlappingLocations;
+  }
 }
