@@ -1,0 +1,9 @@
+/target
+*.iml
+
+*.gif
+*.jpg
+*.jpeg
+*.png
+
+/input
