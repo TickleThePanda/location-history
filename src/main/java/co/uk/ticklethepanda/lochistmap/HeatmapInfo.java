@@ -1,11 +1,11 @@
-package com.ticklethepanda.lochistmap;
+package co.uk.ticklethepanda.lochistmap;
 
-import com.ticklethepanda.lochistmap.cartograph.Heatmap;
-import com.ticklethepanda.lochistmap.cartograph.Point;
-import com.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
-import com.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
+import co.uk.ticklethepanda.lochistmap.cartograph.Heatmap;
+import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
+import co.uk.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
+import co.uk.ticklethepanda.lochistmap.cartograph.Point;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
 
 import java.awt.geom.Rectangle2D;
 import java.io.FileNotFoundException;

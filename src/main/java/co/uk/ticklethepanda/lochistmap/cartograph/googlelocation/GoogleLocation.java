@@ -1,6 +1,6 @@
-package com.ticklethepanda.lochistmap.cartograph.googlelocation;
+package co.uk.ticklethepanda.lochistmap.cartograph.googlelocation;
 
-import com.ticklethepanda.lochistmap.cartograph.Point;
+import co.uk.ticklethepanda.lochistmap.cartograph.Point;
 
 import java.time.Instant;
 import java.time.LocalDate;

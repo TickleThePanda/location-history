@@ -1,4 +1,4 @@
-package com.ticklethepanda.lochistmap.cartograph;
+package co.uk.ticklethepanda.lochistmap.cartograph;
 
 public class Heatmap {
 

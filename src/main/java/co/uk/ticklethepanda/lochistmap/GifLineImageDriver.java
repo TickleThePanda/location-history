@@ -1,11 +1,11 @@
-package com.ticklethepanda.lochistmap;
+package co.uk.ticklethepanda.lochistmap;
 
+import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.ticklethepanda.lochistmap.cartograph.Point;
-import com.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
+import co.uk.ticklethepanda.lochistmap.cartograph.Point;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
 import net.kroo.elliot.GifSequenceWriter;
 
 import javax.imageio.stream.FileImageOutputStream;

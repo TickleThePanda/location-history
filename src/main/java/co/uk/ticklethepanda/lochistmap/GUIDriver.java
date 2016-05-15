@@ -1,14 +1,13 @@
-package com.ticklethepanda.lochistmap;
+package co.uk.ticklethepanda.lochistmap;
 
+import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
+import co.uk.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.ticklethepanda.lochistmap.cartograph.HeatmapPresenter;
-import com.ticklethepanda.lochistmap.cartograph.HeatmapView;
-import com.ticklethepanda.lochistmap.cartograph.Point;
-import com.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
-import com.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
+import co.uk.ticklethepanda.lochistmap.cartograph.HeatmapPresenter;
+import co.uk.ticklethepanda.lochistmap.cartograph.HeatmapView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,7 +44,7 @@ public class GUIDriver {
 				"panda-loc-hist").getLocations();
 
 		System.out.println("Converting ECP coordinate system...");
-		final List<? extends Point> points = new EcpHeatmapFactory(locations).getPoints();
+		final List<? extends co.uk.ticklethepanda.lochistmap.cartograph.Point> points = new EcpHeatmapFactory(locations).getPoints();
 
 		System.out.println("Converting array to Quadtree...");
 		Quadtree quadtree = new Quadtree(points);

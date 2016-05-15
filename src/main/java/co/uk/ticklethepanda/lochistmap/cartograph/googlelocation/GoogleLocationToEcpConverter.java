@@ -1,6 +1,6 @@
-package com.ticklethepanda.lochistmap.cartograph.googlelocation;
+package co.uk.ticklethepanda.lochistmap.cartograph.googlelocation;
 
-import com.ticklethepanda.lochistmap.cartograph.ecp.EcpPoint;
+import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpPoint;
 
 import java.util.List;
 import java.util.stream.Collectors;

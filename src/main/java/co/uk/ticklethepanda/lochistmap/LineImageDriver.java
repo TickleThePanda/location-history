@@ -1,12 +1,12 @@
-package com.ticklethepanda.lochistmap;
+package co.uk.ticklethepanda.lochistmap;
 
+import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
+import co.uk.ticklethepanda.lochistmap.imagewriter.ImageWriter;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.ticklethepanda.lochistmap.cartograph.Point;
-import com.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
-import com.ticklethepanda.lochistmap.imagewriter.ImageWriter;
+import co.uk.ticklethepanda.lochistmap.cartograph.Point;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -14,18 +14,19 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-public class LineImageJessDriver {
+public class LineImageDriver {
 
-	private static final int IMAGE_WIDTH = 1000;
+	private static final int IMAGE_WIDTH = 5000;
 
 	private static final String FILE_NAME = "panda-loc-hist";
-	private static final String OUT_NAME = "line-out-name";
+	private static final String OUT_NAME = "panda-line-out";
+
+	private static final int BORDER_SIZE = 10;
 
 	public static void main(String[] args) throws JsonSyntaxException,
 			JsonIOException, FileNotFoundException {
 		System.out.println("Loading locations from file...");
-		final List<GoogleLocation> locations = GoogleLocations.Loader
-				.fromFile(FILE_NAME).getLocations();
+		final List<GoogleLocation> locations = GoogleLocations.Loader.fromFile(FILE_NAME).filterInaccurate(1000).getLocations();
 
 		System.out.println("Converting ECP coordinate system...");
 		final EcpHeatmapFactory map = new EcpHeatmapFactory(locations);
@@ -68,10 +69,17 @@ public class LineImageJessDriver {
 		}
 		
 		long endTime = System.currentTimeMillis();
+		
+		BufferedImage borderedImage = new BufferedImage(IMAGE_WIDTH + 2 * BORDER_SIZE,
+				(int) ((double) IMAGE_WIDTH / aspectRatio + 2 * BORDER_SIZE),
+				BufferedImage.TYPE_INT_ARGB);
+		
+		g2d = (Graphics2D) borderedImage.getGraphics();
+		g2d.drawImage(bi, null, BORDER_SIZE, BORDER_SIZE);
 
 		System.out.printf("Time taken to draw: %.3f\n", (double) (endTime - startTime)/ 1000.0);
 		System.out.println("Printing out to file...");
-		ImageWriter.writeImageOut(bi, OUT_NAME);
+		ImageWriter.writeImageOut(borderedImage, OUT_NAME);
 		System.out.println("Finished...");
 
 	}

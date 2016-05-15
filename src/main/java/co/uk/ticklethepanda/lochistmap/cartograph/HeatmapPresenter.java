@@ -1,4 +1,4 @@
-package com.ticklethepanda.lochistmap.cartograph;
+package co.uk.ticklethepanda.lochistmap.cartograph;
 
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.SwingWorker;
 
-import com.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
+import co.uk.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
 
 public class HeatmapPresenter {
 

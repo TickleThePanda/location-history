@@ -1,10 +1,10 @@
-package com.ticklethepanda.lochistmap;
+package co.uk.ticklethepanda.lochistmap;
 
-import com.ticklethepanda.lochistmap.cartograph.HeatmapPainter;
-import com.ticklethepanda.lochistmap.cartograph.ecp.EcpPoint;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
-import com.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
+import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpPoint;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
+import co.uk.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
+import co.uk.ticklethepanda.lochistmap.cartograph.HeatmapPainter;
 import net.kroo.elliot.GifSequenceWriter;
 
 import javax.imageio.stream.FileImageOutputStream;

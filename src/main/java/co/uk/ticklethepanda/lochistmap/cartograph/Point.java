@@ -1,4 +1,4 @@
-package com.ticklethepanda.lochistmap.cartograph;
+package co.uk.ticklethepanda.lochistmap.cartograph;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;

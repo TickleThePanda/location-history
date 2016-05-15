@@ -1,9 +1,9 @@
-package com.ticklethepanda.lochistmap.cartograph.quadtree;
+package co.uk.ticklethepanda.lochistmap.cartograph.quadtree;
 
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
-import com.ticklethepanda.lochistmap.cartograph.Point;
+import co.uk.ticklethepanda.lochistmap.cartograph.Point;
 
 public final class QuadtreeNode {
 	private static final int DEFAULT_MAX_STORAGE = 1;

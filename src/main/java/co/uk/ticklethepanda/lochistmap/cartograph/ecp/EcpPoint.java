@@ -1,7 +1,7 @@
-package com.ticklethepanda.lochistmap.cartograph.ecp;
+package co.uk.ticklethepanda.lochistmap.cartograph.ecp;
 
-import com.ticklethepanda.lochistmap.cartograph.Point;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import co.uk.ticklethepanda.lochistmap.cartograph.Point;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
 
 public class EcpPoint implements Point {
 	private final double x;

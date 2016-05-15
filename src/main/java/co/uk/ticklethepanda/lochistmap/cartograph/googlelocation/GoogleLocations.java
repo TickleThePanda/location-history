@@ -1,4 +1,4 @@
-package com.ticklethepanda.lochistmap.cartograph.googlelocation;
+package co.uk.ticklethepanda.lochistmap.cartograph.googlelocation;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;

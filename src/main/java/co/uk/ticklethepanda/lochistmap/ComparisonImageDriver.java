@@ -1,15 +1,15 @@
-package com.ticklethepanda.lochistmap;
+package co.uk.ticklethepanda.lochistmap;
 
+import co.uk.ticklethepanda.lochistmap.cartograph.Heatmap;
+import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
+import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpPoint;
+import co.uk.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
+import co.uk.ticklethepanda.lochistmap.imagewriter.ImageWriter;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.ticklethepanda.lochistmap.cartograph.Heatmap;
-import com.ticklethepanda.lochistmap.cartograph.HeatmapPainter;
-import com.ticklethepanda.lochistmap.cartograph.ecp.EcpHeatmapFactory;
-import com.ticklethepanda.lochistmap.cartograph.ecp.EcpPoint;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
-import com.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
-import com.ticklethepanda.lochistmap.imagewriter.ImageWriter;
+import co.uk.ticklethepanda.lochistmap.cartograph.HeatmapPainter;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

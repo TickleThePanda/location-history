@@ -1,10 +1,10 @@
-package com.ticklethepanda.lochistmap.cartograph.ecp;
+package co.uk.ticklethepanda.lochistmap.cartograph.ecp;
 
-import com.ticklethepanda.lochistmap.cartograph.Heatmap;
-import com.ticklethepanda.lochistmap.cartograph.HeatmapFactory;
-import com.ticklethepanda.lochistmap.cartograph.Point;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
-import com.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocationToEcpConverter;
+import co.uk.ticklethepanda.lochistmap.cartograph.Heatmap;
+import co.uk.ticklethepanda.lochistmap.cartograph.HeatmapFactory;
+import co.uk.ticklethepanda.lochistmap.cartograph.Point;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
+import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocationToEcpConverter;
 
 import java.awt.geom.Rectangle2D;
 import java.util.List;

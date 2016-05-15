@@ -1,4 +1,4 @@
-package com.ticklethepanda.lochistmap.imagewriter;
+package co.uk.ticklethepanda.lochistmap.imagewriter;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

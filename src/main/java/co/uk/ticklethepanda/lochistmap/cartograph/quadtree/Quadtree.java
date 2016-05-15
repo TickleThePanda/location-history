@@ -1,7 +1,7 @@
-package com.ticklethepanda.lochistmap.cartograph.quadtree;
+package co.uk.ticklethepanda.lochistmap.cartograph.quadtree;
 
-import com.ticklethepanda.lochistmap.cartograph.Heatmap;
-import com.ticklethepanda.lochistmap.cartograph.Point;
+import co.uk.ticklethepanda.lochistmap.cartograph.Heatmap;
+import co.uk.ticklethepanda.lochistmap.cartograph.Point;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
