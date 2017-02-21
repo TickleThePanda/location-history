@@ -1,10 +1,10 @@
 package co.uk.ticklethepanda.lochistmap;
 
+import co.uk.ticklethepanda.lochistmap.cartograph.HeatmapPainter;
 import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpPoint;
 import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
 import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
 import co.uk.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
-import co.uk.ticklethepanda.lochistmap.cartograph.HeatmapPainter;
 import net.kroo.elliot.GifSequenceWriter;
 
 import javax.imageio.stream.FileImageOutputStream;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * Created by panda on 15/05/16.
  */
-public class GifPointImageDriver {
+public class GifSeparateMonthImageDriver {
 
   private static class StringMonthIterator implements Iterator<String> {
 
@@ -75,7 +75,7 @@ public class GifPointImageDriver {
       150000,
       150000 / 800f * 1000f);
 
-  private static final String OUT_NAME = "panda-points-out.gif";
+  private static final String OUT_NAME = "output/panda-points-separate-out.gif";
 
   public static void main(String[] args) throws IOException {
 
@@ -110,19 +110,16 @@ public class GifPointImageDriver {
 
     System.out.println("drawing...");
 
-    List<EcpPoint> cumulativePoints = new ArrayList<>();
+
+    BufferedImage lastImage = null;
+
     for(String monthIdentifier : months) {
 
-      if(pointsGroupedByMonth.containsKey(monthIdentifier)) {
-        cumulativePoints.addAll(
-            pointsGroupedByMonth.get(monthIdentifier));
+      List<EcpPoint> points = pointsGroupedByMonth.get(monthIdentifier);
 
-        System.out.println(monthIdentifier);
-      } else {
-        System.out.println(monthIdentifier + " (missing)");
-      }
+      System.out.println(monthIdentifier);
 
-      Quadtree quadtree = new Quadtree(cumulativePoints);
+      Quadtree quadtree = new Quadtree(points);
 
       BufferedImage image = PAINTER.paintHeatmap(
           quadtree.convertToHeatmap(
@@ -145,6 +142,13 @@ public class GifPointImageDriver {
           25);
 
       writer.writeToSequence(image);
+
+      lastImage = image;
+    }
+
+    //repeat last month
+    for(int i = 0; i < 10; i++) {
+      writer.writeToSequence(lastImage);
     }
 
     writer.close();
