@@ -1,5 +1,6 @@
-/target
+target
 *.iml
+.idea
 
 *.gif
 *.jpg

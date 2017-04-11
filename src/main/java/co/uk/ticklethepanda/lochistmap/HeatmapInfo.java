@@ -16,32 +16,32 @@ import java.util.List;
  */
 public class HeatmapInfo {
 
-  private static final Rectangle2D croppedImage = new Rectangle2D.Double(
-      -135000,
-      -2990000,
-      150000,
-      150000 / 800f * 1000f);
+    private static final Rectangle2D croppedImage = new Rectangle2D.Double(
+            -135000,
+            -2990000,
+            150000,
+            150000 / 800f * 1000f);
 
-  public static void main(String[] args) throws FileNotFoundException {
-    System.out.println("Loading locations from file...");
-    final List<GoogleLocation> locations = GoogleLocations.Loader.fromFile(
-        "panda-loc-hist").getLocations();
+    public static void main(String[] args) throws FileNotFoundException {
+        System.out.println("Loading locations from file...");
+        final List<GoogleLocation> locations = GoogleLocations.Loader.fromFile(
+                "panda-loc-hist").getLocations();
 
-    System.out.println("Converting ECP coordinate system...");
+        System.out.println("Converting ECP coordinate system...");
 
-    List<? extends Point> points =
-        new EcpHeatmapFactory(locations).getPoints();
+        List<? extends Point> points =
+                new EcpHeatmapFactory(locations).getPoints();
 
-    Quadtree quadtree = new Quadtree(points);
+        Quadtree quadtree = new Quadtree(points);
 
-    Heatmap heatmap = quadtree.convertToHeatmap(200, 200, croppedImage);
+        Heatmap heatmap = quadtree.convertToHeatmap(200, croppedImage);
 
-    for (int x = 0; x < heatmap.getWidth(); x++) {
-      for (int y = 0; y < heatmap.getHeight(); y++) {
-        if (heatmap.getValue(x, y) > 0) {
-          System.out.println(heatmap.getValue(x, y));
+        for (int x = 0; x < heatmap.getWidth(); x++) {
+            for (int y = 0; y < heatmap.getHeight(); y++) {
+                if (heatmap.getValue(x, y) > 0) {
+                    System.out.println(heatmap.getValue(x, y));
+                }
+            }
         }
-      }
     }
-  }
 }
