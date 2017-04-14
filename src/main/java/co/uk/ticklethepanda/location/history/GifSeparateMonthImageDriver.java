@@ -1,10 +1,13 @@
-package co.uk.ticklethepanda.lochistmap;
+package co.uk.ticklethepanda.location.history;
 
-import co.uk.ticklethepanda.lochistmap.cartograph.ecp.EcpPoint;
-import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocation;
-import co.uk.ticklethepanda.lochistmap.cartograph.googlelocation.GoogleLocations;
-import co.uk.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
-import co.uk.ticklethepanda.lochistmap.cartograph.HeatmapPainter;
+import co.uk.ticklethepanda.location.history.cartograph.Cartograph;
+import co.uk.ticklethepanda.location.history.cartographs.heatmap.HeatmapGenerator;
+import co.uk.ticklethepanda.location.history.cartographs.heatmap.HeatmapImagePainter;
+import co.uk.ticklethepanda.location.history.cartographs.quadtree.Quadtree;
+import co.uk.ticklethepanda.location.history.points.PointConverters;
+import co.uk.ticklethepanda.location.history.points.ecp.EcpPoint;
+import co.uk.ticklethepanda.location.history.points.googlelocation.GoogleLocation;
+import co.uk.ticklethepanda.location.history.points.googlelocation.GoogleLocations;
 import net.kroo.elliot.GifSequenceWriter;
 
 import javax.imageio.stream.FileImageOutputStream;
@@ -25,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Created by panda on 15/05/16.
  */
-public class GifCumulativeMonthImageDriver {
+public class GifSeparateMonthImageDriver {
 
     private static class StringMonthIterator implements Iterator<String> {
 
@@ -66,8 +69,8 @@ public class GifCumulativeMonthImageDriver {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
-    private static final HeatmapPainter PAINTER = new HeatmapPainter(
-            new HeatmapPainter.HeatmapColourPicker.Monotone());
+    private static final HeatmapImagePainter PAINTER = new HeatmapImagePainter(
+            new HeatmapImagePainter.HeatmapColourPicker.Monotone());
 
     private static final Rectangle2D viewport = new Rectangle2D.Double(
             -208635,
@@ -75,7 +78,7 @@ public class GifCumulativeMonthImageDriver {
             264354,
             201649);
 
-    private static final String OUT_NAME = "output/panda-points-cumulative-out.gif";
+    private static final String OUT_NAME = "output/panda-points-separate-out.gif";
 
     public static void main(String[] args) throws IOException {
 
@@ -95,7 +98,9 @@ public class GifCumulativeMonthImageDriver {
                 Collectors.groupingBy(
                         l -> FORMATTER.format(l.getDate()),
                         Collectors.mapping(
-                                l -> EcpPoint.convertLocationToECP(l),
+                                l -> PointConverters
+                                        .GOOGLE_TO_ECP
+                                        .convert(l),
                                 Collectors.toList())));
 
         ImageOutputStream stream =
@@ -110,27 +115,24 @@ public class GifCumulativeMonthImageDriver {
 
         System.out.println("drawing...");
 
-        List<EcpPoint> cumulativePoints = new ArrayList<>();
 
         BufferedImage lastImage = null;
 
         for (String monthIdentifier : months) {
 
-            if (pointsGroupedByMonth.containsKey(monthIdentifier)) {
-                cumulativePoints.addAll(
-                        pointsGroupedByMonth.get(monthIdentifier));
+            List<EcpPoint> points = pointsGroupedByMonth.get(monthIdentifier);
 
-                System.out.println(monthIdentifier);
-            } else {
-                System.out.println(monthIdentifier + " (missing)");
-            }
+            System.out.println(monthIdentifier);
 
-            Quadtree quadtree = new Quadtree(cumulativePoints);
+            Cartograph<EcpPoint> cartograph = new Quadtree<>(points);
+
+            HeatmapGenerator converter = new HeatmapGenerator(
+                    cartograph
+            );
 
             BufferedImage image = PAINTER.paintHeatmap(
-                    quadtree.convertToHeatmap(
-                            233,
-                            viewport),
+                    converter.convert(viewport,
+                            233.0 / viewport.getWidth()),
                     3);
 
             Graphics2D graphics2D = image.createGraphics();

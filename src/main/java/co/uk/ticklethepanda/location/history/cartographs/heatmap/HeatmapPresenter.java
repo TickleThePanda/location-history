@@ -1,9 +1,10 @@
-package co.uk.ticklethepanda.lochistmap.cartograph;
+package co.uk.ticklethepanda.location.history.cartographs.heatmap;
 
-import co.uk.ticklethepanda.lochistmap.cartograph.quadtree.Quadtree;
+import co.uk.ticklethepanda.location.history.cartograph.Cartograph;
+import co.uk.ticklethepanda.location.history.points.ecp.EcpPoint;
 
 import javax.swing.*;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -52,8 +53,8 @@ public class HeatmapPresenter {
                     newWidth, newHeight);
 
             BufferedImage heatmapImage = painter.paintHeatmap(
-                    model.convertToHeatmap(view.getWidth() / pixelSize,
-                            newHeatmapWindow),
+                    cartographToHeatmap.convert(newHeatmapWindow,
+                            (view.getWidth() / pixelSize) / newHeatmapWindow.getWidth()),
                     pixelSize);
 
 
@@ -101,8 +102,8 @@ public class HeatmapPresenter {
                     yNewHeatmap, heatmapWindow.getWidth(),
                     heatmapWindow.getHeight());
 
-            Heatmap heatmap = model.convertToHeatmap(view.getWidth()
-                    / pixelSize, newWindow);
+            Heatmap heatmap = cartographToHeatmap.convert(newWindow,
+                    (view.getWidth() / pixelSize) / newWindow.getWidth());
 
             BufferedImage image = painter.paintHeatmap(heatmap, pixelSize);
 
@@ -132,8 +133,8 @@ public class HeatmapPresenter {
                     heatmapWindow.getY(), heatmapWindow.getWidth(),
                     heatmapWindow.getHeight() * oldRatio / newRatio);
 
-            return painter.paintHeatmap(model.convertToHeatmap(view.getWidth()
-                    / pixelSize + 1, heatmapWindow), pixelSize);
+            return painter.paintHeatmap(cartographToHeatmap.convert(heatmapWindow,
+                    (view.getWidth() / pixelSize) / heatmapWindow.getWidth()), pixelSize);
         }
 
         @Override
@@ -146,24 +147,24 @@ public class HeatmapPresenter {
         }
     }
 
-
     private static final int DEFAULT_PIXEL_SIZE = 3;
 
     protected static final int KEYPAD_TRANSLATION_DISTANCE = 20;
 
     private final HeatmapView view;
-    private final Quadtree model;
+    private final HeatmapGenerator cartographToHeatmap;
+
     private Thread thread;
-    private final HeatmapPainter painter = new HeatmapPainter();
+    private final HeatmapImagePainter painter = new HeatmapImagePainter();
 
     private Rectangle2D heatmapWindow;
     private final int pixelSize;
 
     private Point mousePoint;
 
-    public HeatmapPresenter(HeatmapView view, Quadtree model, int pixelSize) {
+    public HeatmapPresenter(HeatmapView view, Cartograph<EcpPoint> model, int pixelSize) {
         this.view = view;
-        this.model = model;
+        this.cartographToHeatmap = new HeatmapGenerator(model);
         this.pixelSize = pixelSize;
         Rectangle2D bounding = model.getBoundingRectangle();
 
@@ -288,7 +289,7 @@ public class HeatmapPresenter {
         });
     }
 
-    public HeatmapPresenter(HeatmapView view, Quadtree model) {
+    public HeatmapPresenter(HeatmapView view, Cartograph<EcpPoint> model) {
         this(view, model, DEFAULT_PIXEL_SIZE);
     }
 }
