@@ -111,7 +111,10 @@ public class HeatmapImagePainter {
         return maxNumber;
     }
 
-    public Graphics2D paintMap(Heatmap heatmap, int blockSize, Graphics2D g2d) {
+    public Graphics2D paintMap(
+            Heatmap heatmap,
+            int blockSize,
+            Graphics2D g2d) {
         double maxNumber = getHighestNumber(heatmap);
         for (int x = 0; x < heatmap.getWidth(); x++) {
             for (int y = 0; y < heatmap.getHeight(); y++) {

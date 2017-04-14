@@ -1,12 +1,17 @@
 package co.uk.ticklethepanda.location.history.cartograph;
 
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
-public interface Cartograph<E extends Point> {
+/**
+ * A collection of points which
+ * @param <E>
+ */
+public interface Cartograph<E extends Point>  {
 
-    boolean insert(E mp);
+    boolean add(E mp);
 
-    int queryRange(Rectangle2D rect);
+    int countPointsInside(Shape shape);
 
     Rectangle2D getBoundingRectangle();
 }

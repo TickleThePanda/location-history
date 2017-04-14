@@ -1,17 +1,18 @@
 package co.uk.ticklethepanda.location.history.cartographs.heatmap;
 
 import co.uk.ticklethepanda.location.history.cartograph.Cartograph;
+import co.uk.ticklethepanda.location.history.cartograph.Point;
 
 import java.awt.geom.Rectangle2D;
 
-public class HeatmapGenerator {
+public class HeatmapGenerator<E extends Point> {
 
-    private final Cartograph<co.uk.ticklethepanda.location.history.points.ecp.EcpPoint> cartograph;
+    private final Cartograph<E> cartograph;
 
     /**
      * @param cartograph
      */
-    public HeatmapGenerator(Cartograph<co.uk.ticklethepanda.location.history.points.ecp.EcpPoint> cartograph) {
+    public HeatmapGenerator(Cartograph<E> cartograph) {
         this.cartograph = cartograph;
     }
 
@@ -45,7 +46,7 @@ public class HeatmapGenerator {
                         yStart,
                         unitsPerBlock,
                         unitsPerBlock);
-                image[x][y] = cartograph.queryRange(block);
+                image[x][y] = cartograph.countPointsInside(block);
             }
         }
         return new Heatmap(image);

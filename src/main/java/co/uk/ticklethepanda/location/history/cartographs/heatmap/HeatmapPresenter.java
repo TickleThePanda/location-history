@@ -1,35 +1,31 @@
 package co.uk.ticklethepanda.location.history.cartographs.heatmap;
 
-import co.uk.ticklethepanda.location.history.cartograph.Cartograph;
-import co.uk.ticklethepanda.location.history.points.ecp.EcpPoint;
+import co.uk.ticklethepanda.location.history.cartograph.*;
 
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.lang.Thread.State;
-import java.util.concurrent.ExecutionException;
 
-public class HeatmapPresenter {
+public class HeatmapPresenter<E extends Point> {
 
-    private final class HeatmapScaler extends SwingWorker<BufferedImage, Void> {
+    private final class HeatmapScaler implements Runnable {
 
         private static final double SCALE_MULTIPLIER = 0.9;
-        private Point mousePoint;
+        private java.awt.Point mousePoint;
         private double wheelRotation;
 
-        public HeatmapScaler(Point point, int rotation) {
+        public HeatmapScaler(java.awt.Point point, int rotation) {
             this.mousePoint = point;
             this.wheelRotation = rotation;
         }
 
         public HeatmapScaler(int rotation) {
-            this(new Point(view.getWidth() / 2, view.getHeight() / 2), rotation);
+            this(new java.awt.Point(view.getWidth() / 2, view.getHeight() / 2), rotation);
         }
 
         @Override
-        protected BufferedImage doInBackground() throws Exception {
+        public void run() {
 
             final double xNormalised = mousePoint.getX()
                     / (double) view.getWidth();
@@ -49,41 +45,24 @@ public class HeatmapPresenter {
             final double newX = selectedX - newWidth * xNormalised;
             final double newY = selectedY - newHeight * yNormalised;
 
-            Rectangle2D newHeatmapWindow = new Rectangle2D.Double(newX, newY,
+            Rectangle2D newWindow = new Rectangle2D.Double(newX, newY,
                     newWidth, newHeight);
 
-            BufferedImage heatmapImage = painter.paintHeatmap(
-                    cartographToHeatmap.convert(newHeatmapWindow,
-                            (view.getWidth() / pixelSize) / newHeatmapWindow.getWidth()),
-                    pixelSize);
-
-
-            heatmapWindow = newHeatmapWindow;
-
-            return heatmapImage;
-        }
-
-        @Override
-        protected void done() {
-            try {
-                view.setHeatmap(get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            updateView(newWindow);
         }
 
     }
 
-    private final class HeatmapTranslator extends SwingWorker<BufferedImage, Void> {
+    private final class HeatmapTranslator implements Runnable {
 
-        private Point translation;
+        private java.awt.Point translation;
 
-        HeatmapTranslator(Point translation) {
+        HeatmapTranslator(java.awt.Point translation) {
             this.translation = translation;
         }
 
         @Override
-        protected BufferedImage doInBackground() throws Exception {
+        public void run() {
 
             final double xDiffNormalised = (double) translation.getX()
                     / view.getWidth();
@@ -102,69 +81,54 @@ public class HeatmapPresenter {
                     yNewHeatmap, heatmapWindow.getWidth(),
                     heatmapWindow.getHeight());
 
-            Heatmap heatmap = cartographToHeatmap.convert(newWindow,
-                    (view.getWidth() / pixelSize) / newWindow.getWidth());
-
-            BufferedImage image = painter.paintHeatmap(heatmap, pixelSize);
-
-            heatmapWindow = newWindow;
-            return image;
+            updateView(newWindow);
         }
 
-        @Override
-        protected void done() {
-            try {
-                view.setHeatmap(get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
-    private final class HeatmapResizer extends SwingWorker<BufferedImage, Void> {
+    private final class HeatmapResizer implements Runnable {
         @Override
-        protected BufferedImage doInBackground() throws Exception {
+        public void run() {
             double oldRatio = (double) heatmapWindow.getWidth()
                     / (double) heatmapWindow.getHeight();
             double newRatio = (double) view.getWidth()
                     / (double) view.getHeight();
 
-            heatmapWindow = new Rectangle2D.Double(heatmapWindow.getX(),
+            Rectangle2D newWindow = new Rectangle2D.Double(heatmapWindow.getX(),
                     heatmapWindow.getY(), heatmapWindow.getWidth(),
                     heatmapWindow.getHeight() * oldRatio / newRatio);
 
-            return painter.paintHeatmap(cartographToHeatmap.convert(heatmapWindow,
-                    (view.getWidth() / pixelSize) / heatmapWindow.getWidth()), pixelSize);
+            updateView(newWindow);
         }
 
-        @Override
-        protected void done() {
-            try {
-                view.setHeatmap(get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private static final int DEFAULT_PIXEL_SIZE = 3;
 
-    protected static final int KEYPAD_TRANSLATION_DISTANCE = 20;
-
     private final HeatmapView view;
-    private final HeatmapGenerator cartographToHeatmap;
-
-    private Thread thread;
+    private final HeatmapGenerator<E> cartographToHeatmap;
     private final HeatmapImagePainter painter = new HeatmapImagePainter();
 
     private Rectangle2D heatmapWindow;
+
+    private Thread thread;
+
     private final int pixelSize;
 
-    private Point mousePoint;
+    private java.awt.Point mousePoint;
 
-    public HeatmapPresenter(HeatmapView view, Cartograph<EcpPoint> model, int pixelSize) {
+    public HeatmapPresenter(
+            HeatmapView view,
+            Cartograph<E> model) {
+        this(view, model, DEFAULT_PIXEL_SIZE);
+    }
+
+    public HeatmapPresenter(
+            HeatmapView view,
+            Cartograph<E> model,
+            int pixelSize) {
         this.view = view;
-        this.cartographToHeatmap = new HeatmapGenerator(model);
+        this.cartographToHeatmap = new HeatmapGenerator<E>(model);
         this.pixelSize = pixelSize;
         Rectangle2D bounding = model.getBoundingRectangle();
 
@@ -226,7 +190,7 @@ public class HeatmapPresenter {
                     int transY = (int) mousePoint.getY()
                             - (int) e.getPoint().getY();
                     mousePoint = e.getPoint();
-                    Point translation = new Point(transX, transY);
+                    java.awt.Point translation = new java.awt.Point(transX, transY);
                     thread = new Thread(new HeatmapTranslator(translation));
                     thread.start();
                 }
@@ -260,22 +224,22 @@ public class HeatmapPresenter {
 
                 if (thread.getState() == State.TERMINATED) {
                     if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                        thread = new Thread(new HeatmapTranslator(new Point(10,
+                        thread = new Thread(new HeatmapTranslator(new java.awt.Point(10,
                                 0)));
                         thread.start();
                     }
                     if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                        thread = new Thread(new HeatmapTranslator(new Point(
+                        thread = new Thread(new HeatmapTranslator(new java.awt.Point(
                                 -10, 0)));
                         thread.start();
                     }
                     if (e.getKeyCode() == KeyEvent.VK_UP) {
-                        thread = new Thread(new HeatmapTranslator(new Point(0,
+                        thread = new Thread(new HeatmapTranslator(new java.awt.Point(0,
                                 10)));
                         thread.start();
                     }
                     if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                        thread = new Thread(new HeatmapTranslator(new Point(0,
+                        thread = new Thread(new HeatmapTranslator(new java.awt.Point(0,
                                 -10)));
                         thread.start();
                     }
@@ -289,7 +253,12 @@ public class HeatmapPresenter {
         });
     }
 
-    public HeatmapPresenter(HeatmapView view, Cartograph<EcpPoint> model) {
-        this(view, model, DEFAULT_PIXEL_SIZE);
+    private void updateView(Rectangle2D newViewport) {
+        BufferedImage image = painter.paintHeatmap(cartographToHeatmap.convert(heatmapWindow,
+                (view.getWidth() / pixelSize) / heatmapWindow.getWidth()), pixelSize);
+
+        this.heatmapWindow = newViewport;
+        view.setHeatmap(image);
     }
+
 }
