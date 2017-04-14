@@ -1,6 +1,6 @@
-package co.uk.ticklethepanda.location.history;
+package co.uk.ticklethepanda.location.history.examples;
 
-import co.uk.ticklethepanda.location.history.cartograph.Cartograph;
+import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
 import co.uk.ticklethepanda.location.history.cartograph.Point;
 import co.uk.ticklethepanda.location.history.cartographs.quadtree.Quadtree;
 import co.uk.ticklethepanda.location.history.points.PointConverters;
@@ -10,6 +10,8 @@ import co.uk.ticklethepanda.location.history.points.googlelocation.GoogleLocatio
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import net.kroo.elliot.GifSequenceWriter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -24,10 +26,12 @@ import java.util.List;
 
 public class GifLineImageDriver {
 
+    public static final Logger LOG = LogManager.getLogger();
+
     private static final int IMAGE_WIDTH = 800;
     private static final int IMAGE_HEIGHT = 1000;
 
-    private static final String FILE_NAME = "panda-loc-hist";
+    private static final String FILE_NAME = "input/panda-loc-hist.json";
     private static final String OUT_NAME = "panda-line-gif-out.gif";
 
     private static final Rectangle2D croppedImage = new Rectangle2D.Double(
@@ -47,10 +51,10 @@ public class GifLineImageDriver {
                 .GOOGLE_TO_ECP
                 .convertList(locations);
 
-        Cartograph<EcpPoint> cartograph = new Quadtree<>(points);
+        SpatialCollection<EcpPoint> spatialCollection = new Quadtree<>(points);
 
 
-        System.out.println("Drawing image...");
+        LOG.info("Drawing image...");
 
         List<Line2D> lines = new ArrayList<>();
         int count = 0;
@@ -74,7 +78,7 @@ public class GifLineImageDriver {
 
             if (count % 1000 == 0) {
                 writer.writeToSequence(generateImageForLines(lines));
-                System.out.println("line " + count + " of " + pointsCount);
+                LOG.info("line " + count + " of " + pointsCount);
             }
 
             prev = mp;

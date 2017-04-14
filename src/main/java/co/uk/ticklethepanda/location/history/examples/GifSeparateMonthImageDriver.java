@@ -1,7 +1,7 @@
-package co.uk.ticklethepanda.location.history;
+package co.uk.ticklethepanda.location.history.examples;
 
-import co.uk.ticklethepanda.location.history.cartograph.Cartograph;
-import co.uk.ticklethepanda.location.history.cartographs.heatmap.HeatmapGenerator;
+import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
+import co.uk.ticklethepanda.location.history.cartographs.SpatialCollectionAnalyser;
 import co.uk.ticklethepanda.location.history.cartographs.heatmap.HeatmapImagePainter;
 import co.uk.ticklethepanda.location.history.cartographs.quadtree.Quadtree;
 import co.uk.ticklethepanda.location.history.points.PointConverters;
@@ -9,6 +9,8 @@ import co.uk.ticklethepanda.location.history.points.ecp.EcpPoint;
 import co.uk.ticklethepanda.location.history.points.googlelocation.GoogleLocation;
 import co.uk.ticklethepanda.location.history.points.googlelocation.GoogleLocations;
 import net.kroo.elliot.GifSequenceWriter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -28,7 +30,9 @@ import java.util.stream.Collectors;
 /**
  * Created by panda on 15/05/16.
  */
-public class GifCumulativeMonthImageDriver {
+public class GifSeparateMonthImageDriver {
+
+    public static final Logger LOG = LogManager.getLogger();
 
     private static class StringMonthIterator implements Iterator<String> {
 
@@ -78,27 +82,29 @@ public class GifCumulativeMonthImageDriver {
             264354,
             201649);
 
-    private static final String OUT_NAME = "output/panda-points-cumulative-out.gif";
+    private static final String OUT_NAME = "output/panda-points-separate-out.gif";
 
     public static void main(String[] args) throws IOException {
 
-        System.out.println("loading locations from file...");
+        LOG.info("loading locations from file...");
 
         final List<GoogleLocation> locations =
                 GoogleLocations.Loader
-                        .fromFile("panda-loc-hist")
+                        .fromFile("input/panda-loc-hist.json")
                         .filterInaccurate(1000)
                         .getLocations();
 
 
-        System.out.println("grouping by month...");
+        LOG.info("grouping by month...");
 
         Map<String, List<EcpPoint>> pointsGroupedByMonth
                 = locations.stream().collect(
                 Collectors.groupingBy(
                         l -> FORMATTER.format(l.getDate()),
                         Collectors.mapping(
-                                l -> PointConverters.GOOGLE_TO_ECP.convert(l),
+                                l -> PointConverters
+                                        .GOOGLE_TO_ECP
+                                        .convert(l),
                                 Collectors.toList())));
 
         ImageOutputStream stream =
@@ -111,31 +117,25 @@ public class GifCumulativeMonthImageDriver {
 
         List<String> months = getAllMonthsInRange(pointsGroupedByMonth);
 
-        System.out.println("drawing...");
+        LOG.info("drawing...");
 
-        List<EcpPoint> cumulativePoints = new ArrayList<>();
 
         BufferedImage lastImage = null;
 
         for (String monthIdentifier : months) {
 
-            if (pointsGroupedByMonth.containsKey(monthIdentifier)) {
-                cumulativePoints.addAll(
-                        pointsGroupedByMonth.get(monthIdentifier));
+            List<EcpPoint> points = pointsGroupedByMonth.get(monthIdentifier);
 
-                System.out.println(monthIdentifier);
-            } else {
-                System.out.println(monthIdentifier + " (missing)");
-            }
+            LOG.info(monthIdentifier);
 
-            Cartograph<EcpPoint> quadtree
-                    = new Quadtree<>(cumulativePoints);
+            SpatialCollection<EcpPoint> spatialCollection = new Quadtree<>(points);
 
-            HeatmapGenerator converter
-                    = new HeatmapGenerator(quadtree);
+            SpatialCollectionAnalyser converter = new SpatialCollectionAnalyser(
+                    spatialCollection
+            );
 
             BufferedImage image = PAINTER.paintHeatmap(
-                    converter.convert(viewport,
+                    converter.convertToHeatmap(viewport,
                             233.0 / viewport.getWidth()),
                     3);
 

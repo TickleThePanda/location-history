@@ -1,6 +1,6 @@
 package co.uk.ticklethepanda.location.history.cartographs.quadtree;
 
-import co.uk.ticklethepanda.location.history.cartograph.Cartograph;
+import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
 import co.uk.ticklethepanda.location.history.cartograph.Point;
 
 import java.awt.*;
@@ -8,7 +8,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Quadtree<E extends Point> implements Cartograph<E> {
+public class Quadtree<E extends Point> implements SpatialCollection<E> {
     private static final int DEFAULT_MAX_STORAGE = 1;
     private final Rectangle2D boundingRectangle;
     private final ArrayList<E> points = new ArrayList<E>();
@@ -27,10 +27,10 @@ public class Quadtree<E extends Point> implements Cartograph<E> {
         points.forEach(this::add);
     }
 
-    public boolean add(E mp) {
+    public boolean add(E point) {
 
         // if this doesn't contain item
-        if (!boundingRectangle.contains(mp.getX(), mp.getY()))
+        if (!boundingRectangle.contains(point.getX(), point.getY()))
             return false;
 
         count++;
@@ -40,16 +40,16 @@ public class Quadtree<E extends Point> implements Cartograph<E> {
             if (this.isLeaf()) {
                 subdivide();
             }
-            if (northEast.add(mp))
+            if (northEast.add(point))
                 return true;
-            if (northWest.add(mp))
+            if (northWest.add(point))
                 return true;
-            if (southEast.add(mp))
+            if (southEast.add(point))
                 return true;
-            if (southWest.add(mp))
+            if (southWest.add(point))
                 return true;
         } else {
-            points.add(mp);
+            points.add(point);
         }
         return false;
 

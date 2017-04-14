@@ -1,7 +1,7 @@
-package co.uk.ticklethepanda.location.history;
+package co.uk.ticklethepanda.location.history.examples;
 
-import co.uk.ticklethepanda.location.history.cartograph.Cartograph;
-import co.uk.ticklethepanda.location.history.cartographs.heatmap.HeatmapGenerator;
+import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
+import co.uk.ticklethepanda.location.history.cartographs.SpatialCollectionAnalyser;
 import co.uk.ticklethepanda.location.history.cartographs.heatmap.HeatmapImagePainter;
 import co.uk.ticklethepanda.location.history.cartographs.quadtree.Quadtree;
 import co.uk.ticklethepanda.location.history.points.PointConverters;
@@ -11,6 +11,8 @@ import co.uk.ticklethepanda.location.history.points.googlelocation.GoogleLocatio
 import co.uk.ticklethepanda.utility.images.imagewriter.ImageWriter;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -19,8 +21,9 @@ import java.util.List;
 
 public class BasicImageDriver {
 
+    public static final Logger LOG = LogManager.getLogger();
 
-    private static final String FILE_NAME = "panda-loc-hist";
+    private static final String FILE_NAME = "input/panda-loc-hist.json";
 
     private static final int IMAGE_BLOCK_SIZE = 4;
 
@@ -34,28 +37,28 @@ public class BasicImageDriver {
             JsonIOException, IOException {
 
         // get data
-        System.out.println("Loading locations from file...");
+        LOG.info("Loading locations from file...");
         final List<GoogleLocation> locations = GoogleLocations.Loader.fromFile(FILE_NAME).getLocations();
 
-        System.out.println("Generating map...");
+        LOG.info("Generating map...");
 
         List<EcpPoint> points =
                 PointConverters.GOOGLE_TO_ECP
                         .convertList(locations);
 
-        Cartograph<EcpPoint> tree = new Quadtree<EcpPoint>(points);
+        SpatialCollection<EcpPoint> tree = new Quadtree<EcpPoint>(points);
 
         HeatmapImagePainter md = new HeatmapImagePainter(
                 new HeatmapImagePainter.HeatmapColourPicker.Monotone()
         );
 
-        HeatmapGenerator converter =
-                new HeatmapGenerator(tree);
+        SpatialCollectionAnalyser converter =
+                new SpatialCollectionAnalyser(tree);
 
         BufferedImage image = md.paintHeatmap(
-                converter.convert(viewport, 250.0 / viewport.getWidth()), IMAGE_BLOCK_SIZE);
+                converter.convertToHeatmap(viewport, 250.0 / viewport.getWidth()), IMAGE_BLOCK_SIZE);
 
-        System.out.println("Sending image out to file...");
+        LOG.info("Sending image out to file...");
         ImageWriter.writeImageOut(image, "mine");
 
     }

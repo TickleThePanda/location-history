@@ -1,6 +1,5 @@
-package co.uk.ticklethepanda.location.history;
+package co.uk.ticklethepanda.location.history.examples;
 
-import co.uk.ticklethepanda.location.history.cartograph.Point;
 import co.uk.ticklethepanda.location.history.points.PointConverters;
 import co.uk.ticklethepanda.location.history.points.ecp.EcpPoint;
 import co.uk.ticklethepanda.location.history.points.googlelocation.GoogleLocation;
@@ -8,6 +7,8 @@ import co.uk.ticklethepanda.location.history.points.googlelocation.GoogleLocatio
 import co.uk.ticklethepanda.utility.images.imagewriter.ImageWriter;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -16,28 +17,28 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-public class LineImageDriver {
+public class LineImageJessDriver {
 
-    private static final int IMAGE_WIDTH = 5000;
+    public static final Logger LOG = LogManager.getLogger();
 
-    private static final String FILE_NAME = "panda-loc-hist";
-    private static final String OUT_NAME = "panda-line-out";
+    private static final int IMAGE_WIDTH = 1000;
 
-    private static final int BORDER_SIZE = 10;
+    private static final String FILE_NAME = "input/panda-loc-hist.json";
+    private static final String OUT_NAME = "line-out-name";
 
     public static void main(String[] args) throws JsonSyntaxException,
             JsonIOException, FileNotFoundException {
-        System.out.println("Loading locations from file...");
-        final List<GoogleLocation> locations = GoogleLocations.Loader.fromFile(FILE_NAME).filterInaccurate(1000).getLocations();
+        LOG.info("Loading locations from file...");
+        final List<GoogleLocation> locations = GoogleLocations.Loader
+                .fromFile(FILE_NAME).getLocations();
 
         List<EcpPoint> points = PointConverters.GOOGLE_TO_ECP.convertList(locations);
 
-        System.out.println("Converting ECP coordinate system...");
-        Rectangle2D boundingRectangle = Point.getBoundingRectangle(points);
+        LOG.info("Converting ECP coordinate system...");
+        Rectangle2D boundingRectangle = co.uk.ticklethepanda.location.history.cartograph.Point.getBoundingRectangle(points);
         double aspectRatio = boundingRectangle.getWidth()
                 / boundingRectangle.getHeight();
-
-        System.out.println("Drawing image...");
+        LOG.info("Drawing image...");
         BufferedImage bi = new BufferedImage(IMAGE_WIDTH,
                 (int) ((double) IMAGE_WIDTH / aspectRatio),
                 BufferedImage.TYPE_INT_ARGB);
@@ -51,8 +52,8 @@ public class LineImageDriver {
 
         long startTime = System.currentTimeMillis();
 
-        Point prev = points.get(0);
-        for (Point mp : points) {
+        co.uk.ticklethepanda.location.history.cartograph.Point prev = points.get(0);
+        for (co.uk.ticklethepanda.location.history.cartograph.Point mp : points) {
 
             double normX1 = (prev.getX() - boundingRectangle.getX())
                     / boundingRectangle.getWidth();
@@ -74,17 +75,10 @@ public class LineImageDriver {
 
         long endTime = System.currentTimeMillis();
 
-        BufferedImage borderedImage = new BufferedImage(IMAGE_WIDTH + 2 * BORDER_SIZE,
-                (int) ((double) IMAGE_WIDTH / aspectRatio + 2 * BORDER_SIZE),
-                BufferedImage.TYPE_INT_ARGB);
-
-        g2d = (Graphics2D) borderedImage.getGraphics();
-        g2d.drawImage(bi, null, BORDER_SIZE, BORDER_SIZE);
-
         System.out.printf("Time taken to draw: %.3f\n", (double) (endTime - startTime) / 1000.0);
-        System.out.println("Printing out to file...");
-        ImageWriter.writeImageOut(borderedImage, OUT_NAME);
-        System.out.println("Finished...");
+        LOG.info("Printing out to file...");
+        ImageWriter.writeImageOut(bi, OUT_NAME);
+        LOG.info("Finished...");
 
     }
 }

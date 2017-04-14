@@ -18,8 +18,10 @@ public class GoogleLocations {
                 throws JsonSyntaxException, JsonIOException, FileNotFoundException {
             Gson gson = new Gson();
 
-            return gson.fromJson(new BufferedReader(new FileReader("input/"
-                    + fileName + ".json")), GoogleLocations.class);
+            return gson.fromJson(
+                    new BufferedReader(
+                            new FileReader(fileName)
+                    ), GoogleLocations.class);
 
         }
     }

@@ -1,6 +1,7 @@
 package co.uk.ticklethepanda.location.history.cartographs.heatmap;
 
 import co.uk.ticklethepanda.location.history.cartograph.*;
+import co.uk.ticklethepanda.location.history.cartographs.SpatialCollectionAnalyser;
 
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
@@ -106,7 +107,7 @@ public class HeatmapPresenter<E extends Point> {
     private static final int DEFAULT_PIXEL_SIZE = 3;
 
     private final HeatmapView view;
-    private final HeatmapGenerator<E> cartographToHeatmap;
+    private final SpatialCollectionAnalyser<E> cartographToHeatmap;
     private final HeatmapImagePainter painter = new HeatmapImagePainter();
 
     private Rectangle2D heatmapWindow;
@@ -119,16 +120,16 @@ public class HeatmapPresenter<E extends Point> {
 
     public HeatmapPresenter(
             HeatmapView view,
-            Cartograph<E> model) {
+            SpatialCollection<E> model) {
         this(view, model, DEFAULT_PIXEL_SIZE);
     }
 
     public HeatmapPresenter(
             HeatmapView view,
-            Cartograph<E> model,
+            SpatialCollection<E> model,
             int pixelSize) {
         this.view = view;
-        this.cartographToHeatmap = new HeatmapGenerator<E>(model);
+        this.cartographToHeatmap = new SpatialCollectionAnalyser<E>(model);
         this.pixelSize = pixelSize;
         Rectangle2D bounding = model.getBoundingRectangle();
 
@@ -254,7 +255,7 @@ public class HeatmapPresenter<E extends Point> {
     }
 
     private void updateView(Rectangle2D newViewport) {
-        BufferedImage image = painter.paintHeatmap(cartographToHeatmap.convert(heatmapWindow,
+        BufferedImage image = painter.paintHeatmap(cartographToHeatmap.convertToHeatmap(heatmapWindow,
                 (view.getWidth() / pixelSize) / heatmapWindow.getWidth()), pixelSize);
 
         this.heatmapWindow = newViewport;

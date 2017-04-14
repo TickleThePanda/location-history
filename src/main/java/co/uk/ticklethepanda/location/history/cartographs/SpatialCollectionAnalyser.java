@@ -1,19 +1,20 @@
-package co.uk.ticklethepanda.location.history.cartographs.heatmap;
+package co.uk.ticklethepanda.location.history.cartographs;
 
-import co.uk.ticklethepanda.location.history.cartograph.Cartograph;
+import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
 import co.uk.ticklethepanda.location.history.cartograph.Point;
+import co.uk.ticklethepanda.location.history.cartographs.heatmap.Heatmap;
 
 import java.awt.geom.Rectangle2D;
 
-public class HeatmapGenerator<E extends Point> {
+public class SpatialCollectionAnalyser<E extends Point> {
 
-    private final Cartograph<E> cartograph;
+    private final SpatialCollection<E> spatialCollection;
 
     /**
-     * @param cartograph
+     * @param spatialCollection
      */
-    public HeatmapGenerator(Cartograph<E> cartograph) {
-        this.cartograph = cartograph;
+    public SpatialCollectionAnalyser(SpatialCollection<E> spatialCollection) {
+        this.spatialCollection = spatialCollection;
     }
 
     /**
@@ -26,8 +27,8 @@ public class HeatmapGenerator<E extends Point> {
      *
      * @return an array that represents the density of the Quadtree from a particular view.
      */
-    public Heatmap convert(final Rectangle2D viewport,
-                           final double blocksPerUnit) {
+    public Heatmap convertToHeatmap(final Rectangle2D viewport,
+                                    final double blocksPerUnit) {
 
         final double unitsPerBlock = 1 / blocksPerUnit;
 
@@ -46,7 +47,7 @@ public class HeatmapGenerator<E extends Point> {
                         yStart,
                         unitsPerBlock,
                         unitsPerBlock);
-                image[x][y] = cartograph.countPointsInside(block);
+                image[x][y] = spatialCollection.countPointsInside(block);
             }
         }
         return new Heatmap(image);
