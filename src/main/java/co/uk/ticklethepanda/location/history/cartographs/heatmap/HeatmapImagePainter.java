@@ -1,69 +1,85 @@
 package co.uk.ticklethepanda.location.history.cartographs.heatmap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.awt.*;
 import java.awt.geom.Rectangle2D.Double;
 import java.awt.image.BufferedImage;
 
 public class HeatmapImagePainter {
+    public static final Logger LOG = LogManager.getLogger();
 
     private HeatmapColourPicker colourPicker;
 
     public interface HeatmapColourPicker {
 
-        Color computeCellColor(double unscaled, double largestNumber);
+        default double normaliseValue(double unscaled, double largestNumber) {
+            return 1.0 - Math.log(unscaled) / Math.log(largestNumber);
+        }
 
-        public static class Greyscale implements HeatmapColourPicker {
+        default Color pickColor(double unscaled, double largestNumber) {
+            return pickColor(normaliseValue(unscaled, largestNumber));
+        }
 
-            public static final double MIN_BRIGHTNESS = 0.2;
+        Color pickColor(double percentage);
 
-            private final double minBrightness;
+        class Greyscale implements HeatmapColourPicker {
+
+            public static final double MAX_BRIGHTNESS = 0.2;
+
+            private final double maximumBrightness;
 
             public Greyscale() {
-                this(MIN_BRIGHTNESS);
+                this(MAX_BRIGHTNESS);
             }
 
-            public Greyscale(double minBrightness) {
-                this.minBrightness = minBrightness;
+            public Greyscale(double maximumBrightness) {
+                this.maximumBrightness = maximumBrightness;
             }
 
             @Override
-            public Color computeCellColor(double unscaled, double largestNumber) {
-                double brightness = Math.min((1.0 / unscaled) * (1.0 - minBrightness), 1f);
+            public Color pickColor(double percentage) {
+                double brightness = (1.0 - maximumBrightness) * percentage;
                 Color color = Color.getHSBColor(0f, 0f, (float) brightness);
                 return color;
             }
         }
 
-        public static class Monotone implements HeatmapColourPicker {
+        class Monotone implements HeatmapColourPicker {
 
-            public static final double MIN_BRIGHTNESS = 0.2;
-            public static final double MAX_BRIGHTNESS = 0.6;
+            public static final double MIN_BRIGHTNESS = 0.1;
+            public static final double MAX_BRIGHTNESS = 0.9;
 
             private final double minBrightness;
             private final double maxBrightness;
 
-            public Monotone() {
-                this(MIN_BRIGHTNESS, MAX_BRIGHTNESS);
+            private final Color color;
+
+            public Monotone(Color color) {
+                this(color, MIN_BRIGHTNESS, MAX_BRIGHTNESS);
             }
 
-            public Monotone(double minBrightness, double maxBrightness) {
+            public Monotone(Color color, double minBrightness, double maxBrightness) {
+                this.color = color;
                 this.minBrightness = minBrightness;
                 this.maxBrightness = maxBrightness;
             }
 
             @Override
-            public Color computeCellColor(double unscaled, double largestNumber) {
-                double brightness = Math.min((1.0 / unscaled) * (maxBrightness - minBrightness) + 1 - MAX_BRIGHTNESS, 1f);
-                Color color = Color.getHSBColor(80f / 255f, 0.43f, (float) brightness);
+            public Color pickColor(double percentage) {
+                double brightness = (maxBrightness - minBrightness) * percentage + minBrightness;
+
+                float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
+
+                Color color = Color.getHSBColor(hsb[0], hsb[1], (float) brightness);
                 return color;
             }
         }
 
-        public static class Hue implements HeatmapColourPicker {
-            public Color computeCellColor(double unscaled, double largestNumber) {
-                double inverseScale = 7f;
-                double hue = largestNumber
-                        / (inverseScale * largestNumber - inverseScale * unscaled);
+        class Hue implements HeatmapColourPicker {
+            public Color pickColor(double percentage) {
+                double hue = percentage;
                 hue = Math.min(hue, 1f) * 0.8f;
                 return Color.getHSBColor(
                         (float) hue, 1f, 1f);
@@ -119,7 +135,7 @@ public class HeatmapImagePainter {
         for (int x = 0; x < heatmap.getWidth(); x++) {
             for (int y = 0; y < heatmap.getHeight(); y++) {
                 if (heatmap.getValue(x, y) > 0) {
-                    Color color = colourPicker.computeCellColor(
+                    Color color = colourPicker.pickColor(
                             heatmap.getValue(x, y), maxNumber);
                     g2d.setColor(color);
 

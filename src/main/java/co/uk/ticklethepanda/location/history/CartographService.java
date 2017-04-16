@@ -1,7 +1,9 @@
 package co.uk.ticklethepanda.location.history;
 
-import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
 import co.uk.ticklethepanda.location.history.cartograph.Point;
+import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
+import co.uk.ticklethepanda.location.history.cartographs.SpatialCollectionAnalyser;
+import co.uk.ticklethepanda.location.history.cartographs.heatmap.Heatmap;
 import co.uk.ticklethepanda.location.history.cartographs.quadtree.Quadtree;
 import co.uk.ticklethepanda.location.history.points.PointConverters;
 import co.uk.ticklethepanda.location.history.points.ecp.EcpPoint;
@@ -14,18 +16,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.awt.geom.Rectangle2D;
 import java.io.FileNotFoundException;
 import java.util.List;
 
 @Service
-public class HeatmapService {
+public class CartographService {
 
     public static final Logger LOG = LogManager.getLogger();
 
     private final String filePath;
 
     @Autowired
-    public HeatmapService(
+    public CartographService(
             @Value("${location.history.file.path}")
                     String filePath
     ) {
@@ -48,10 +51,20 @@ public class HeatmapService {
                 PointConverters.GOOGLE_TO_ECP
                         .convertList(locations);
 
-        this.cartograph = new Quadtree<EcpPoint>(points);
+        this.cartograph = new Quadtree<>(points);
     }
 
     public SpatialCollection<? extends Point> getCartograph() {
         return this.cartograph;
+    }
+
+    public Heatmap asHeatmap(
+            Rectangle2D viewport,
+            double widthInBlocks) {
+        SpatialCollectionAnalyser<?> converter =
+                new SpatialCollectionAnalyser<>(getCartograph());
+
+        return converter.convertToHeatmap(viewport, widthInBlocks / viewport.getWidth());
+
     }
 }

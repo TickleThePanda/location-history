@@ -74,7 +74,7 @@ public class GifCumulativeMonthImageDriver {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
     private static final HeatmapImagePainter PAINTER = new HeatmapImagePainter(
-            new HeatmapImagePainter.HeatmapColourPicker.Monotone());
+            new HeatmapImagePainter.HeatmapColourPicker.Monotone(Color.getColor("#ccddaa")));
 
     private static final Rectangle2D viewport = new Rectangle2D.Double(
             -208635,
@@ -107,6 +107,8 @@ public class GifCumulativeMonthImageDriver {
 
         ImageOutputStream stream =
                 new FileImageOutputStream(new File(OUT_NAME));
+
+
 
         GifSequenceWriter writer = new GifSequenceWriter(stream,
                 BufferedImage.TYPE_INT_ARGB,

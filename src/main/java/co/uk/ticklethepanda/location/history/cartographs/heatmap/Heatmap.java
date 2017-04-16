@@ -1,10 +1,12 @@
 package co.uk.ticklethepanda.location.history.cartographs.heatmap;
 
-public class Heatmap {
+import java.io.Serializable;
 
-    private final int[][] heatmapArray;
+public class Heatmap implements Serializable {
+
     private final int width;
     private final int height;
+    private final int[][] heatmapArray;
 
     public Heatmap(int[][] heatmapArray) {
         this.heatmapArray = heatmapArray;
@@ -30,6 +32,13 @@ public class Heatmap {
 
     public int getHeight() {
         return height;
+    }
+
+    /**
+     * @return a copy of the heatmap's array.
+     */
+    public int[][] getHeatmap() {
+        return heatmapArray == null ? null : heatmapArray.clone();
     }
 
 }

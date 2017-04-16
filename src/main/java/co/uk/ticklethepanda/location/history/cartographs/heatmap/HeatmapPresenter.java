@@ -1,8 +1,10 @@
 package co.uk.ticklethepanda.location.history.cartographs.heatmap;
 
 import co.uk.ticklethepanda.location.history.cartograph.*;
+import co.uk.ticklethepanda.location.history.cartograph.Point;
 import co.uk.ticklethepanda.location.history.cartographs.SpatialCollectionAnalyser;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -108,7 +110,8 @@ public class HeatmapPresenter<E extends Point> {
 
     private final HeatmapView view;
     private final SpatialCollectionAnalyser<E> cartographToHeatmap;
-    private final HeatmapImagePainter painter = new HeatmapImagePainter();
+    private final HeatmapImagePainter painter = new HeatmapImagePainter(
+            new HeatmapImagePainter.HeatmapColourPicker.Monotone(new Color(0xCCDDAA)));
 
     private Rectangle2D heatmapWindow;
 

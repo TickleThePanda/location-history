@@ -14,6 +14,7 @@ import com.google.gson.JsonSyntaxException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class BasicImageDriver {
         SpatialCollection<EcpPoint> tree = new Quadtree<EcpPoint>(points);
 
         HeatmapImagePainter md = new HeatmapImagePainter(
-                new HeatmapImagePainter.HeatmapColourPicker.Monotone()
+                new HeatmapImagePainter.HeatmapColourPicker.Monotone(Color.getColor("#ccddaa"))
         );
 
         SpatialCollectionAnalyser converter =
