@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -67,6 +68,7 @@ public class CartographRepo {
         return this.cartograph;
     }
 
+    @CacheEvict("heatmap-image")
     public void save(InputStream stream) throws IOException {
         Path path = new File(filePath).toPath();
         Path backupPath = new File(filePath + "-backup").toPath();
