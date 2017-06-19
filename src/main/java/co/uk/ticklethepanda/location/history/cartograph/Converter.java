@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 /**
  * Created by panda on 4/13/17.
  */
-public interface PointConverter<I extends Point, O extends Point> {
+public interface Converter<I, O> {
 
     O convert(I input);
 

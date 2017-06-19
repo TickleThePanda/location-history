@@ -1,8 +1,9 @@
 package co.uk.ticklethepanda.location.history.application.spring;
 
-import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
+import co.uk.ticklethepanda.location.history.cartograph.GeodeticData;
+import co.uk.ticklethepanda.location.history.cartograph.GeodeticDataCollection;
 import co.uk.ticklethepanda.location.history.cartograph.cartographs.quadtree.Quadtree;
-import co.uk.ticklethepanda.location.history.cartograph.points.PointConverters;
+import co.uk.ticklethepanda.location.history.cartograph.points.Converters;
 import co.uk.ticklethepanda.location.history.cartograph.points.googlelocation.GoogleLocations;
 import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LatLong;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +34,7 @@ public class CartographRepo {
 
     private final long accuracyThreshold;
     private String filePath;
-    private Quadtree<LatLong> cartograph;
+    private GeodeticDataCollection<LatLong, LocalDate> cartograph;
 
     @Autowired
     public CartographRepo(
@@ -44,7 +46,7 @@ public class CartographRepo {
     }
 
     @PostConstruct
-    public void loadCartograph() throws FileNotFoundException {
+    public void loadCartographs() throws FileNotFoundException {
         LOG.info("Loading locations from file...");
 
         GoogleLocations locations =
@@ -52,20 +54,24 @@ public class CartographRepo {
                         .fromFile(filePath);
 
         if (accuracyThreshold != -1) {
-            locations = locations.filterInaccurate(accuracyThreshold);
+            locations = locations.getFiltrator()
+                    .removeInaccurate(accuracyThreshold)
+                    .filter();
         }
+
+        LOG.info("Generating cumulative map");
+        loadCompleteCartograph(locations);
+    }
+
+    public void loadCompleteCartograph(GoogleLocations locations) throws FileNotFoundException {
 
         LOG.info("Generating map...");
 
-        List<LatLong> points =
-                PointConverters.GOOGLE_TO_LAT_LONG
+        List<GeodeticData<LatLong, LocalDate>> points =
+                Converters.GOOGLE_TO_LAT_LONG
                         .convertList(locations.getLocations());
 
         this.cartograph = new Quadtree<>(points);
-    }
-
-    public SpatialCollection<LatLong> getCartograph() {
-        return this.cartograph;
     }
 
     @CacheEvict("heatmap-image")
@@ -82,10 +88,16 @@ public class CartographRepo {
 
         executorService.submit(() -> {
             try {
-                this.loadCartograph();
+                this.loadCartographs();
             } catch (FileNotFoundException e) {
                 LOG.info("Could not load cartograph after it was uploaded.");
             }
         });
     }
+
+
+    public GeodeticDataCollection<LatLong, LocalDate> getCartograph() {
+        return this.cartograph;
+    }
+
 }

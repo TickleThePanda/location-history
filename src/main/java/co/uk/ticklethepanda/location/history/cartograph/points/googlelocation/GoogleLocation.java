@@ -24,11 +24,11 @@ public class GoogleLocation implements Point, Serializable {
         return timestampMs;
     }
 
-    public double getY() {
+    public float getY() {
         return latitudeE7;
     }
 
-    public double getX() {
+    public float getX() {
         return longitudeE7;
     }
 

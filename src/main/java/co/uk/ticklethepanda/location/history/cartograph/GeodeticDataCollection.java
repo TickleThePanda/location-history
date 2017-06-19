@@ -1,27 +1,31 @@
 package co.uk.ticklethepanda.location.history.cartograph;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
+import java.util.function.Predicate;
 
 /**
  * A collection of points which
+ *
  * @param <E>
  */
-public interface SpatialCollection<E extends Point>  {
+public interface GeodeticDataCollection<E extends Point, T> {
 
     /**
      * Add a point to the collection.
+     *
      * @param point
      * @return
      */
-    boolean add(E point);
+    void add(GeodeticData<E, T> point);
 
     /**
      * Count the number of points that fall within the given shape.
+     *
      * @param shape
      * @return
      */
-    int countPointsInside(Shape shape);
+    int countPoints(Rectangle shape);
 
-    Rectangle2D getBoundingRectangle();
+    int countMatchingPoints(Rectangle shape, Predicate<T> filter);
+
+    Rectangle getBoundingRectangle();
 }

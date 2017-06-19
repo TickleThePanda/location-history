@@ -1,10 +1,9 @@
 package co.uk.ticklethepanda.location.history.application.spring;
 
+import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDimensions;
 import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LatLong;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.awt.geom.Point2D;
 
 @Component
 public class HeatmapRequestDefaults {
@@ -18,16 +17,16 @@ public class HeatmapRequestDefaults {
     private int pixelSize;
 
     @Value("${location.history.heatmap.center.lat}")
-    private double centerLat;
+    private float centerLat;
 
     @Value("${location.history.heatmap.center.long}")
-    private double centerLong;
+    private float centerLong;
 
     @Value("${location.history.heatmap.scale}")
-    private double scale;
+    private float scale;
 
     @Value("${location.history.heatmap.minScale}")
-    private double minScale;
+    private float minScale;
 
     public int getHeatmapWidth() {
         return heatmapWidth;
@@ -41,19 +40,19 @@ public class HeatmapRequestDefaults {
         return pixelSize;
     }
 
-    public double getCenterLat() {
+    public float getCenterLat() {
         return centerLat;
     }
 
-    public double getCenterLong() {
+    public float getCenterLong() {
         return centerLong;
     }
 
-    public double getMinScale() {
+    public float getMinScale() {
         return minScale;
     }
 
-    public double getScale() {
+    public float getScale() {
         return scale;
     }
 
@@ -61,8 +60,8 @@ public class HeatmapRequestDefaults {
         return new LatLong(centerLat, centerLong);
     }
 
-    public Point2D getSize() {
-        return new Point2D.Double(heatmapWidth, heatmapHeight);
+    public HeatmapDimensions getSize() {
+        return new HeatmapDimensions(heatmapWidth, heatmapHeight);
     }
 
 }

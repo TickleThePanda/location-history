@@ -4,16 +4,16 @@ import co.uk.ticklethepanda.location.history.cartograph.Point;
 
 import java.io.Serializable;
 
-public class Heatmap<E extends Point> implements Serializable {
+public class Heatmap<E extends Point, T> implements Serializable {
 
     private final HeatmapDimensions dimensions;
     private final int[][] heatmapArray;
-    private final HeatmapDescriptor<E> descriptor;
+    private final HeatmapDescriptor<E, T> descriptor;
 
     public Heatmap(
             int[][] heatmapArray,
             E centre,
-            double scale
+            float scale
     ) {
         this.heatmapArray = heatmapArray;
         dimensions = new HeatmapDimensions(heatmapArray.length, heatmapArray[0].length);

@@ -17,4 +17,21 @@ public class HeatmapDimensions {
         return height;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HeatmapDimensions that = (HeatmapDimensions) o;
+
+        if (width != that.width) return false;
+        return height == that.height;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = width;
+        result = 31 * result + height;
+        return result;
+    }
 }

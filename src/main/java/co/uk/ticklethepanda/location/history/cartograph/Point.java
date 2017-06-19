@@ -1,31 +1,36 @@
 package co.uk.ticklethepanda.location.history.cartograph;
 
+import co.uk.ticklethepanda.location.history.cartograph.points.euclid.EuclidPoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 public interface Point {
 
     Logger LOG = LogManager.getLogger();
 
-    static Point2D getMaxBound(
+    static EuclidPoint getMaxBound(
             List<? extends Point> locations) {
-        double maxX = locations.get(0).getX();
-        double maxY = locations.get(0).getY();
+        if (locations.size() == 0) {
+            return null;
+        }
+        float maxX = locations.get(0).getX();
+        float maxY = locations.get(0).getY();
         for (Point mapPoint : locations) {
             maxX = Math.max(maxX, mapPoint.getX());
             maxY = Math.max(maxY, mapPoint.getY());
         }
-        return new Point2D.Double(maxX, maxY);
+        return new EuclidPoint(maxX, maxY);
     }
 
-    static Point2D getMinBound(
+    static EuclidPoint getMinBound(
             List<? extends Point> locations) {
-        double minX = locations.get(0).getX();
-        double minY = locations.get(0).getY();
+        if (locations.size() == 0) {
+            return null;
+        }
+        float minX = locations.get(0).getX();
+        float minY = locations.get(0).getY();
         for (Point mapPoint : locations) {
             minX = Math.min(minX, mapPoint.getX());
             minY = Math.min(minY, mapPoint.getY());
@@ -33,24 +38,27 @@ public interface Point {
                 LOG.debug(mapPoint);
             }
         }
-        return new Point2D.Double(minX, minY);
+        return new EuclidPoint(minX, minY);
     }
 
-    static Rectangle2D getBoundingRectangle(
+    static Rectangle getBoundingRectangle(
             List<? extends Point> locations) {
-        Point2D min = Point.getMinBound(locations);
-        Point2D max = Point.getMaxBound(locations);
+        if (locations.size() == 0) {
+            return null;
+        }
+        EuclidPoint min = Point.getMinBound(locations);
+        EuclidPoint max = Point.getMaxBound(locations);
 
-        double rectangleWidth = max.getX() - min.getX();
-        double rectangleHeight = max.getY() - min.getY();
+        float rectangleWidth = max.getX() - min.getX();
+        float rectangleHeight = max.getY() - min.getY();
 
-        Rectangle2D rect = new Rectangle2D.Double(min.getX(), min.getY(),
+        Rectangle rect = new Rectangle(min.getX(), min.getY(),
                 rectangleWidth, rectangleHeight);
 
         return rect;
     }
 
-    double getX();
+    float getX();
 
-    double getY();
+    float getY();
 }

@@ -9,9 +9,14 @@ import org.apache.logging.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.time.DayOfWeek;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GoogleLocations {
 
@@ -27,9 +32,54 @@ public class GoogleLocations {
                             new FileReader(fileName)
                     ), GoogleLocations.class);
 
-            return locations.filterNullIslands();
+            return locations.getFiltrator()
+                    .removeNullIslands()
+                    .filter();
 
         }
+    }
+
+    public class Filtrator {
+        private List<Predicate<GoogleLocation>> filters = new ArrayList<>();
+
+        public Filtrator removeNullIslands() {
+            filters.add(l -> !l.isNullIsland());
+            return this;
+        }
+
+        public Filtrator removeInaccurate(long threshold) {
+            filters.add(l -> l.getAccuracy() < threshold);
+            return this;
+        }
+
+        public Filtrator keepByDayOfWeek(DayOfWeek dayOfWeek) {
+            filters.add(l -> l.getDate().getDayOfWeek().equals(dayOfWeek));
+            return this;
+        }
+
+        public Filtrator keepByMonth(Month month) {
+            filters.add(l -> l.getDate().getMonth().equals(month));
+            return this;
+        }
+
+        public Filtrator keepByYearMonth(YearMonth month) {
+            filters.add(l -> YearMonth.from(l.getDate()).equals(month));
+            return this;
+        }
+
+        public Filtrator addFilter(Predicate<GoogleLocation> filter) {
+            filters.add(filter);
+            return this;
+        }
+
+        public GoogleLocations filter() {
+            Stream<GoogleLocation> locs = locations.stream();
+            for (Predicate<GoogleLocation> filter : filters) {
+                locs = locs.filter(filter);
+            }
+            return new GoogleLocations(locs.collect(Collectors.toList()));
+        }
+
     }
 
     private List<GoogleLocation> locations;
@@ -43,30 +93,14 @@ public class GoogleLocations {
     }
 
     public GoogleLocations() {
-        this.locations = new ArrayList<>();
+        this(new ArrayList<>());
     }
 
     public GoogleLocations(List<GoogleLocation> locations) {
         this.locations = locations;
     }
 
-    public GoogleLocations filterNullIslands() {
-        GoogleLocations noNullIslands = new GoogleLocations(
-                this.getLocations().stream()
-                        .filter(l -> !l.isNullIsland())
-                        .collect(Collectors.toList())
-        );
-
-        LOG.info("found {} null island(s)", locations.size() - noNullIslands.getLocations().size());
-
-        return noNullIslands;
-    }
-
-    public GoogleLocations filterInaccurate(long accuracyThreshold) {
-        return new GoogleLocations(
-                this.getLocations().stream()
-                        .filter(l -> l.getAccuracy() < accuracyThreshold)
-                        .collect(Collectors.toList())
-        );
+    public Filtrator getFiltrator() {
+        return new Filtrator();
     }
 }

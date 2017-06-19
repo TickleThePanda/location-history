@@ -1,78 +1,68 @@
 package co.uk.ticklethepanda.location.history.cartograph.points.latlong;
 
+import co.uk.ticklethepanda.location.history.cartograph.GeodeticDataCollection;
+import co.uk.ticklethepanda.location.history.cartograph.Rectangle;
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.Heatmap;
+import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDescriptor;
+import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDimensions;
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapProjector;
-import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
+import co.uk.ticklethepanda.location.history.cartograph.points.euclid.EuclidPoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class LatLongHeatmapProjector implements HeatmapProjector<LatLong> {
+public class LatLongHeatmapProjector implements HeatmapProjector<LatLong, LocalDate> {
 
-    private static Logger LOG = LogManager.getLogger();
-
-    private static double calculateActualXScale(double scaleValue) {
+    private static float calculateActualXScale(float scaleValue) {
         return scaleValue;
     }
 
-    private static double calculateActualYScale(double scaleValue) {
-        return -scaleValue / 2.0;
+    private static float calculateActualYScale(float scaleValue) {
+        return -scaleValue / 2.0f;
     }
 
-    private final SpatialCollection<LatLong> spatialCollection;
-    private Point2D size;
+    private static Logger LOG = LogManager.getLogger();
+
+    private final GeodeticDataCollection<LatLong, LocalDate> geodeticDataCollection;
+    private HeatmapDimensions size;
     private LatLong center;
-    private double scale;
+    private float scale;
+    private Optional<Predicate<LocalDate>> filter;
 
     public LatLongHeatmapProjector(
-            SpatialCollection<LatLong> spatialCollection,
-            Point2D size
+            GeodeticDataCollection<LatLong, LocalDate> geodeticDataCollection,
+            HeatmapDescriptor<LatLong, LocalDate> heatmapDescriptor
     ) {
-        this.spatialCollection = spatialCollection;
-        this.size = size;
-
-        this.scale = spatialCollection.getBoundingRectangle().getWidth() / size.getX();
-
-        this.center = new LatLong(
-                spatialCollection.getBoundingRectangle().getCenterX(),
-                spatialCollection.getBoundingRectangle().getCenterY()
-        );
-    }
-
-    public LatLongHeatmapProjector(
-            SpatialCollection<LatLong> spatialCollection,
-            Point2D size,
-            LatLong center,
-            double scale
-    ) {
-        this.spatialCollection = spatialCollection;
-        this.size = size;
-        this.center = center;
-        this.scale = scale;
+        this.geodeticDataCollection = geodeticDataCollection;
+        this.size = heatmapDescriptor.getDimensions();
+        this.center = heatmapDescriptor.getCenter();
+        this.scale = heatmapDescriptor.getScale();
+        this.filter = heatmapDescriptor.getFilter();
     }
 
     @Override
-    public SpatialCollection<LatLong> getSpatialCollection() {
-        return spatialCollection;
+    public GeodeticDataCollection<LatLong, LocalDate> getGeodeticDataCollection() {
+        return geodeticDataCollection;
     }
 
     @Override
-    public Point2D getViewSize() {
+    public HeatmapDimensions getViewSize() {
         return size;
     }
 
     @Override
-    public void setViewSize(Point2D size) {
+    public void setViewSize(HeatmapDimensions size) {
         this.size = size;
     }
 
     @Override
-    public void translate(Point2D point) {
+    public void translate(EuclidPoint point) {
         this.center = new LatLong(
                 center.getX() + point.getX() * calculateActualXScale(scale),
                 center.getY() + point.getY() * calculateActualYScale(scale)
@@ -88,12 +78,12 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong> {
     }
 
     @Override
-    public void scaleBy(double scale) {
+    public void scaleBy(float scale) {
         this.scale *= scale;
     }
 
     @Override
-    public void setScale(double scale) {
+    public void setScale(float scale) {
         this.scale = scale;
     }
 
@@ -103,26 +93,11 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong> {
     }
 
     @Override
-    public void scaleAround(Point2D point, double scaleMult) {
-        double diffScale = calculateScaleDelta(scaleMult);
+    public void scaleAround(EuclidPoint point, float scaleMult) {
+        float diffScale = calculateScaleDelta(scaleMult);
 
-        double offsetLat = (point.getX() - size.getX() / 2.0) * calculateActualXScale(diffScale);
-        double offsetLong = (point.getY() - size.getY() / 2.0) * calculateActualYScale(diffScale);
-
-        this.translate(new LatLong(
-                offsetLat,
-                offsetLong
-        ));
-
-        this.scaleBy(scaleMult);
-    }
-
-    @Override
-    public void scaleAround(LatLong point, double scaleMult) {
-        double scaleDetla = calculateScaleDelta(scaleMult);
-
-        double offsetLat = point.getX() * calculateScaleDelta(scaleDetla);
-        double offsetLong = point.getY() * calculateScaleDelta(scaleDetla);
+        float offsetLat = (point.getX() - size.getWidth() / 2.0f) * calculateActualXScale(diffScale);
+        float offsetLong = (point.getY() - size.getHeight() / 2.0f) * calculateActualYScale(diffScale);
 
         this.translate(new LatLong(
                 offsetLat,
@@ -133,39 +108,61 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong> {
     }
 
     @Override
-    public Heatmap<LatLong> project() {
+    public void scaleAround(LatLong point, float scaleMult) {
+        float scaleDetla = calculateScaleDelta(scaleMult);
+
+        float offsetLat = point.getX() * calculateScaleDelta(scaleDetla);
+        float offsetLong = point.getY() * calculateScaleDelta(scaleDetla);
+
+        this.translate(new LatLong(
+                offsetLat,
+                offsetLong
+        ));
+
+        this.scaleBy(scaleMult);
+    }
+
+    @Override
+    public void setFilter(Predicate<LocalDate> filter) {
+        this.filter = Optional.ofNullable(filter);
+    }
+
+    @Override
+    public Heatmap<LatLong, LocalDate> project() {
         if (size == null) {
             throw new IllegalStateException("a size must be defined");
         }
 
         LOG.debug("projecting: {}", this);
 
-        final double xScale = calculateActualXScale(scale);
-        final double yScale = calculateActualYScale(scale);
+        final float xScale = calculateActualXScale(scale);
+        final float yScale = calculateActualYScale(scale);
 
-        final int viewWidth = (int) Math.ceil(size.getX());
-        final int viewHeight = (int) Math.ceil(size.getY());
+        final int viewWidth = (int) Math.ceil(size.getWidth());
+        final int viewHeight = (int) Math.ceil(size.getHeight());
 
         final int[][] projection = new int[viewWidth][viewHeight];
 
-        final double projectionStartX = center.getX() - (double) viewWidth / 2.0 * xScale;
-        final double projectionStartY = center.getY() - (double) viewHeight / 2.0 * yScale;
+        final float projectionStartX = center.getX() - (float) viewWidth / 2.0f * xScale;
+        final float projectionStartY = center.getY() - (float) viewHeight / 2.0f * yScale;
 
-        LOG.trace("bounding rectangle: {}", spatialCollection.getBoundingRectangle());
+        LOG.trace("bounding rectangle: {}", geodeticDataCollection.getBoundingRectangle());
         LOG.trace("projectionStartX: {}", projectionStartX);
         LOG.trace("projectionStartY: {}", projectionStartY);
 
         for (int x = 0; x < viewWidth; x++) {
             for (int y = 0; y < viewHeight; y++) {
-                double xStart = projectionStartX + x * xScale;
-                double yStart = projectionStartY + y * yScale;
+                float xStart = projectionStartX + x * xScale;
+                float yStart = projectionStartY + y * yScale;
 
-                Rectangle2D block = createPositiveRectangle(
+                Rectangle block = createPositiveRectangle(
                         xStart, yStart,
                         xScale, yScale
                 );
 
-                projection[x][y] = spatialCollection.countPointsInside(block);
+                projection[x][y] = filter
+                        .map(filter -> geodeticDataCollection.countMatchingPoints(block, filter))
+                        .orElseGet(() -> geodeticDataCollection.countPoints(block));
             }
         }
 
@@ -183,15 +180,15 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong> {
 
     @Override
     public String toString() {
-        return "LatLongHeatmapProjector{" +
-                "spatialCollection.bounds=" + spatialCollection.getBoundingRectangle() +
+        return "LatLongDateHeatmapProjector{" +
+                "geodeticDataCollection.bounds=" + geodeticDataCollection.getBoundingRectangle() +
                 ", size=" + size +
                 ", center=" + center +
                 ", scaleBy=" + scale +
                 '}';
     }
 
-    private Rectangle2D createPositiveRectangle(double x, double y, double width, double height) {
+    private Rectangle createPositiveRectangle(float x, float y, float width, float height) {
         if (width < 0) {
             x -= width;
             width = -width;
@@ -201,10 +198,10 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong> {
             height = -height;
         }
 
-        return new Rectangle2D.Double(x, y, width, height);
+        return new Rectangle(x, y, width, height);
     }
 
-    private double calculateScaleDelta(double scaleMult) {
+    private float calculateScaleDelta(float scaleMult) {
         return scale - scale * scaleMult;
     }
 }

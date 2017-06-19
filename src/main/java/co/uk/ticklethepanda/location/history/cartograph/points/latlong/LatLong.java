@@ -3,27 +3,27 @@ package co.uk.ticklethepanda.location.history.cartograph.points.latlong;
 import co.uk.ticklethepanda.location.history.cartograph.Point;
 
 public class LatLong implements Point {
-    private final double x;
-    private final double y;
+    private final float x;
+    private final float y;
 
-    public LatLong(double x, double y) {
+    public LatLong(float x, float y) {
         this.x = x;
         this.y = y;
     }
 
     @Override
-    public double getX() {
+    public float getX() {
         return x;
     }
 
     @Override
-    public double getY() {
+    public float getY() {
         return y;
     }
 
     @Override
     public String toString() {
-        return "LatLong{" +
+        return "LatLongDate{" +
                 "x=" + x +
                 ", y=" + y +
                 '}';
@@ -34,20 +34,21 @@ public class LatLong implements Point {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LatLong latLong = (LatLong) o;
+        LatLong latLongDate = (LatLong) o;
 
-        if (Double.compare(latLong.x, x) != 0) return false;
-        return Double.compare(latLong.y, y) == 0;
+        if (Float.compare(latLongDate.x, x) != 0) return false;
+        return Float.compare(latLongDate.y, y) == 0;
     }
 
     @Override
     public int hashCode() {
         int result;
         long temp;
-        temp = Double.doubleToLongBits(x);
+        temp = Float.floatToIntBits(x);
         result = (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(y);
+        temp = Float.floatToIntBits(y);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
+
 }

@@ -2,16 +2,32 @@ package co.uk.ticklethepanda.location.history.cartograph.heatmap;
 
 import co.uk.ticklethepanda.location.history.cartograph.Point;
 
-public class HeatmapDescriptor<E extends Point> {
+import java.util.Optional;
+import java.util.function.Predicate;
+
+public class HeatmapDescriptor<E extends Point, T> {
+
     private final HeatmapDimensions dimensions;
-
     private final E center;
-    private final double scale;
+    private final float scale;
+    private final Optional<Predicate<T>> filter;
 
-    public HeatmapDescriptor(HeatmapDimensions dimensions, E center, double scale) {
+    public HeatmapDescriptor(
+            HeatmapDimensions dimensions,
+            E center,
+            float scale) {
+        this(dimensions, center, scale, null);
+    }
+
+    public HeatmapDescriptor(
+            HeatmapDimensions dimensions,
+            E center,
+            float scale,
+            Predicate<T> filter) {
         this.dimensions = dimensions;
         this.center = center;
         this.scale = scale;
+        this.filter = Optional.ofNullable(filter);
     }
 
     public HeatmapDimensions getDimensions() {
@@ -22,7 +38,37 @@ public class HeatmapDescriptor<E extends Point> {
         return center;
     }
 
-    public double getScale() {
+    public float getScale() {
         return scale;
+    }
+
+    public Optional<Predicate<T>> getFilter() {
+        return filter;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HeatmapDescriptor<?, ?> that = (HeatmapDescriptor<?, ?>) o;
+
+        if (Float.compare(that.scale, scale) != 0) return false;
+        if (dimensions != null ? !dimensions.equals(that.dimensions) : that.dimensions != null)
+            return false;
+        if (center != null ? !center.equals(that.center) : that.center != null) return false;
+        return filter != null ? filter.equals(that.filter) : that.filter == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = dimensions != null ? dimensions.hashCode() : 0;
+        result = 31 * result + (center != null ? center.hashCode() : 0);
+        temp = Float.floatToIntBits(scale);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (filter != null ? filter.hashCode() : 0);
+        return result;
     }
 }

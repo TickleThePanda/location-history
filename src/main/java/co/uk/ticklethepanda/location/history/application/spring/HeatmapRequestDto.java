@@ -1,8 +1,8 @@
 package co.uk.ticklethepanda.location.history.application.spring;
 
+import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDimensions;
 import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LatLong;
 
-import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 public class HeatmapRequestDto implements Serializable {
@@ -11,9 +11,9 @@ public class HeatmapRequestDto implements Serializable {
 
     private Integer pixelSize;
 
-    private Double x;
-    private Double y;
-    private Double scale;
+    private Float x;
+    private Float y;
+    private Float scale;
 
     public void setWidth(Integer width) {
         this.width = width;
@@ -27,15 +27,15 @@ public class HeatmapRequestDto implements Serializable {
         this.pixelSize = pixelSize;
     }
 
-    public void setX(Double x) {
+    public void setX(Float x) {
         this.x = x;
     }
 
-    public void setY(Double y) {
+    public void setY(Float y) {
         this.y = y;
     }
 
-    public void setScale(Double scale) {
+    public void setScale(Float scale) {
         this.scale = scale;
     }
 
@@ -47,23 +47,23 @@ public class HeatmapRequestDto implements Serializable {
         return height;
     }
 
-    public Double getX() {
+    public Float getX() {
         return x;
     }
 
-    public Double getY() {
+    public Float getY() {
         return y;
     }
 
-    public Point2D getSize() {
-        return new Point2D.Double(width, height);
+    public HeatmapDimensions getSize() {
+        return new HeatmapDimensions(width, height);
     }
 
     public LatLong getCenter() {
         return new LatLong(x, y);
     }
 
-    public double getScale() {
+    public float getScale() {
         return scale;
     }
 

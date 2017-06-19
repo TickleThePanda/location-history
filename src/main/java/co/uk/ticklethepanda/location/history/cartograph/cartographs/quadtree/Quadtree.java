@@ -1,58 +1,71 @@
 package co.uk.ticklethepanda.location.history.cartograph.cartographs.quadtree;
 
-import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
+import co.uk.ticklethepanda.location.history.cartograph.GeodeticData;
+import co.uk.ticklethepanda.location.history.cartograph.GeodeticDataCollection;
 import co.uk.ticklethepanda.location.history.cartograph.Point;
+import co.uk.ticklethepanda.location.history.cartograph.Rectangle;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-public class Quadtree<E extends Point> implements SpatialCollection<E> {
-    private static final int DEFAULT_MAX_STORAGE = 1;
-    private final Rectangle2D boundingRectangle;
-    private final List<E> points = new ArrayList<>();
-    private Quadtree<E> northWest;
-    private Quadtree<E> northEast;
-    private Quadtree<E> southEast;
-    private Quadtree<E> southWest;
-    private int count = 0;
+public class Quadtree<E extends Point, T> implements GeodeticDataCollection<E, T> {
 
-    public Quadtree(Rectangle2D rectangle) {
+    private static <E extends Point, T> Rectangle getBoundingRectangle(List<GeodeticData<E, T>> points) {
+        return Point.getBoundingRectangle(points.stream().map(GeodeticData::getPoint).collect(Collectors.toList()));
+    }
+
+    private static final int DEFAULT_MAX_STORAGE = 75;
+
+    private static final int NW = 0;
+    private static final int NE = 1;
+    private static final int SE = 2;
+    private static final int SW = 3;
+
+    private final Rectangle boundingRectangle;
+    private final int nodeMaxStorage;
+
+    private List<GeodeticData<E, T>> points = new ArrayList<>();
+
+    private Quadtree<E, T>[] children = null;
+
+    public Quadtree(Rectangle rectangle) {
+        this(rectangle, DEFAULT_MAX_STORAGE);
+    }
+
+    public Quadtree(List<GeodeticData<E, T>> points) {
+        this(points, DEFAULT_MAX_STORAGE);
+    }
+
+    public Quadtree(Rectangle rectangle, int nodeMaxStorage) {
+        this.nodeMaxStorage = nodeMaxStorage;
         this.boundingRectangle = rectangle;
     }
 
-    public Quadtree(List<E> points) {
-        this.boundingRectangle = Point.getBoundingRectangle(points);
+    public Quadtree(List<GeodeticData<E, T>> points, int nodeMaxStorage) {
+        this(getBoundingRectangle(points), nodeMaxStorage);
+
         points.forEach(this::add);
     }
 
-    public boolean add(E point) {
+    public void add(GeodeticData<E, T> point) {
 
         // if this doesn't contain item
-        if (!boundingRectangle.contains(point.getX(), point.getY()))
-            return false;
+        if (!boundingRectangle.contains(point.getPoint().getX(), point.getPoint().getY()))
+            return;
 
-        count++;
-
-        // if this does, increase the count
-        if (points.size() > DEFAULT_MAX_STORAGE) {
-            if (this.isLeaf()) {
+        if (points == null || points.size() >= nodeMaxStorage) {
+            if (children == null) {
                 subdivide();
             }
-            if (northEast.add(point))
-                return true;
-            if (northWest.add(point))
-                return true;
-            if (southEast.add(point))
-                return true;
-            if (southWest.add(point))
-                return true;
+            children[NW].add(point);
+            children[NE].add(point);
+            children[SE].add(point);
+            children[SW].add(point);
         } else {
             points.add(point);
         }
-        return false;
-
     }
 
     /**
@@ -61,68 +74,83 @@ public class Quadtree<E extends Point> implements SpatialCollection<E> {
      * @param shape
      * @return
      */
-    public int countPointsInside(Shape shape) {
+    public int countPoints(Rectangle shape) {
+        return countMatchingPoints(shape, p -> true);
+    }
 
+    @Override
+    public int countMatchingPoints(final Rectangle shape, final Predicate<T> filter) {
         if (!shape.intersects(this.boundingRectangle)) {
             return 0;
         }
 
-        if (shape.contains(boundingRectangle)) {
-            return count;
-        }
-
         int count = 0;
-        for (Point mp : points) {
-            if (shape.contains(mp.getX(), mp.getY())) {
-                count++;
+
+        if (points != null) {
+            // natural for loop for performance
+            for (int i = 0; i < points.size(); i++) {
+                GeodeticData<E, T> point = points.get(i);
+                if (filter.test(point.getData()) && shape.contains(
+                        point.getPoint().getX(),
+                        point.getPoint().getY())) {
+                    count++;
+                }
             }
         }
-        if (!isLeaf()) {
-            count += northWest.countPointsInside(shape);
-            count += northEast.countPointsInside(shape);
-            count += southWest.countPointsInside(shape);
-            count += southEast.countPointsInside(shape);
+
+        if (children != null) {
+            count += children[NE].countMatchingPoints(shape, filter);
+            count += children[NW].countMatchingPoints(shape, filter);
+            count += children[SE].countMatchingPoints(shape, filter);
+            count += children[SW].countMatchingPoints(shape, filter);
         }
         return count;
     }
 
     @Override
-    public Rectangle2D getBoundingRectangle() {
+    public Rectangle getBoundingRectangle() {
         return boundingRectangle;
     }
 
-    private boolean isLeaf() {
-        return northWest == null || northEast == null || southWest == null
-                || southWest == null;
-    }
-
     private void subdivide() {
-        double newWidth = boundingRectangle.getWidth() / 2;
-        double newHeight = boundingRectangle.getHeight() / 2;
+        float newWidth = boundingRectangle.getWidth() / 2f;
+        float newHeight = boundingRectangle.getHeight() / 2f;
 
         // minX, minY
-        Rectangle2D.Double nwRect = new Rectangle2D.Double(
+        Rectangle nwRect = new Rectangle(
                 boundingRectangle.getMinX(), boundingRectangle.getMinY(),
                 newWidth, newHeight);
 
         // minX, cenY
-        Rectangle2D.Double swRect = new Rectangle2D.Double(
-                boundingRectangle.getMinX(), boundingRectangle.getCenterY(),
+        Rectangle swRect = new Rectangle(
+                boundingRectangle.getMinX(), boundingRectangle.getCentreY(),
                 newWidth, newHeight);
 
         // cenX, minY
-        Rectangle2D.Double neRect = new Rectangle2D.Double(
-                boundingRectangle.getCenterX(), boundingRectangle.getMinY(),
+        Rectangle neRect = new Rectangle(
+                boundingRectangle.getCentreX(), boundingRectangle.getMinY(),
                 newWidth, newHeight);
 
         // cenX, cenY
-        Rectangle2D.Double seRect = new Rectangle2D.Double(
-                boundingRectangle.getCenterX(), boundingRectangle.getCenterY(),
+        Rectangle seRect = new Rectangle(
+                boundingRectangle.getCentreX(), boundingRectangle.getCentreY(),
                 newWidth, newHeight);
 
-        northWest = new Quadtree<>(nwRect);
-        northEast = new Quadtree<>(neRect);
-        southWest = new Quadtree<>(swRect);
-        southEast = new Quadtree<>(seRect);
+        children = new Quadtree[4];
+
+        children[NW] = new Quadtree<>(nwRect, nodeMaxStorage);
+        children[NE] = new Quadtree<>(neRect, nodeMaxStorage);
+        children[SE] = new Quadtree<>(seRect, nodeMaxStorage);
+        children[SW] = new Quadtree<>(swRect, nodeMaxStorage);
+
+        for (int i = 0; i < points.size(); i++) {
+            children[NW].add(points.get(i));
+            children[NE].add(points.get(i));
+            children[SE].add(points.get(i));
+            children[SW].add(points.get(i));
+        }
+
+        this.points = null;
+
     }
 }

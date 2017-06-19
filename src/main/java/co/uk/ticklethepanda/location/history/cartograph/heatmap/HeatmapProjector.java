@@ -1,32 +1,35 @@
 package co.uk.ticklethepanda.location.history.cartograph.heatmap;
 
 import co.uk.ticklethepanda.location.history.cartograph.Point;
-import co.uk.ticklethepanda.location.history.cartograph.SpatialCollection;
+import co.uk.ticklethepanda.location.history.cartograph.GeodeticDataCollection;
+import co.uk.ticklethepanda.location.history.cartograph.points.euclid.EuclidPoint;
 
-import java.awt.geom.Point2D;
+import java.util.function.Predicate;
 
-public interface HeatmapProjector<E extends Point> {
+public interface HeatmapProjector<E extends Point, T> {
 
-    SpatialCollection<E> getSpatialCollection();
+    GeodeticDataCollection<E, T> getGeodeticDataCollection();
 
-    Point2D getViewSize();
+    HeatmapDimensions getViewSize();
 
-    void setViewSize(Point2D physicalSize);
+    void setViewSize(HeatmapDimensions physicalSize);
 
     void setCenter(E point);
 
-    void translate(Point2D point);
+    void translate(EuclidPoint point);
 
     void translate(E point);
 
-    void setScale(double scale);
+    void setScale(float scale);
 
-    void scaleBy(double scale);
+    void scaleBy(float scale);
 
-    void scaleAround(Point2D aDouble, double v);
+    void scaleAround(EuclidPoint aFloat, float v);
 
-    void scaleAround(E point, double v);
+    void scaleAround(E point, float v);
 
-    Heatmap<E> project();
+    void setFilter(Predicate<T> filter);
+
+    Heatmap<E, T> project();
 
 }

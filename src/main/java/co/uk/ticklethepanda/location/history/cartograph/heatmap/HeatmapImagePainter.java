@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D.Double;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class HeatmapImagePainter {
@@ -40,8 +40,8 @@ public class HeatmapImagePainter {
         return bi;
     }
 
-    private static double getHighestNumber(Heatmap array) {
-        double maxNumber = 0;
+    private static float getHighestNumber(Heatmap array) {
+        float maxNumber = 0;
         for (int x = 0; x < array.getDimensions().getWidth(); x++) {
             for (int y = 0; y < array.getDimensions().getHeight(); y++) {
                 if (array.getValue(x, y) > maxNumber)
@@ -55,7 +55,7 @@ public class HeatmapImagePainter {
             Heatmap heatmap,
             int blockSize,
             Graphics2D g2d) {
-        double maxNumber = getHighestNumber(heatmap);
+        float maxNumber = getHighestNumber(heatmap);
         for (int x = 0; x < heatmap.getDimensions().getWidth(); x++) {
             for (int y = 0; y < heatmap.getDimensions().getHeight(); y++) {
                 if (heatmap.getValue(x, y) > 0) {
@@ -63,11 +63,11 @@ public class HeatmapImagePainter {
                             heatmap.getValue(x, y), maxNumber);
                     g2d.setColor(color);
 
-                    double drawStartX = (x) * blockSize;
-                    double drawStartY = (y) * blockSize;
-                    Double doubleRect = new Double(drawStartX, drawStartY,
+                    float drawStartX = (x) * blockSize;
+                    float drawStartY = (y) * blockSize;
+                    Rectangle2D.Float floatRect = new Rectangle2D.Float(drawStartX, drawStartY,
                             blockSize, blockSize);
-                    g2d.fill(doubleRect);
+                    g2d.fill(floatRect);
                 }
             }
         }
