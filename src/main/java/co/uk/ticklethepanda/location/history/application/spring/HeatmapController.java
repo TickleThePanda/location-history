@@ -27,19 +27,19 @@ public class HeatmapController {
     private static final Logger LOG = LogManager.getLogger();
 
     private final HeatmapService heatmapService;
-    private final HeatmapImageService heatmapImageService;
+    private final MapImageService mapImageService;
     private final HeatmapRequestDefaults defaults;
     private final LocalDateFilterFactory filters;
 
     @Autowired
     public HeatmapController(
             HeatmapService cartographService,
-            HeatmapImageService heatmapImageService,
+            MapImageService mapImageService,
             HeatmapRequestDefaults defaults,
             LocalDateFilterFactory filters
     ) {
         this.heatmapService = cartographService;
-        this.heatmapImageService = heatmapImageService;
+        this.mapImageService = mapImageService;
         this.defaults = defaults;
         this.filters = filters;
     }
@@ -83,7 +83,7 @@ public class HeatmapController {
             throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
         }
 
-        return heatmapImageService.getHeatmapImage(
+        return mapImageService.getHeatmapImage(
                 new HeatmapDescriptor<>(param.getSize(), param.getCenter(), param.getScale()),
                 param.getPixelSize()
         );
@@ -103,7 +103,7 @@ public class HeatmapController {
             throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
         }
 
-        return heatmapImageService.getHeatmapImage(
+        return mapImageService.getHeatmapImage(
                 new HeatmapDescriptor<>(
                         param.getSize(),
                         param.getCenter(),
@@ -127,7 +127,7 @@ public class HeatmapController {
             throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
         }
 
-        return heatmapImageService.getHeatmapImage(
+        return mapImageService.getHeatmapImage(
                 new HeatmapDescriptor<>(
                         param.getSize(),
                         param.getCenter(),
@@ -151,7 +151,7 @@ public class HeatmapController {
             throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
         }
 
-        return heatmapImageService.getHeatmapImage(
+        return mapImageService.getHeatmapImage(
                 new HeatmapDescriptor<>(
                         param.getSize(),
                         param.getCenter(),
@@ -176,7 +176,7 @@ public class HeatmapController {
             throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
         }
 
-        return heatmapImageService.getHeatmapImage(
+        return mapImageService.getHeatmapImage(
                 new HeatmapDescriptor<>(
                         param.getSize(),
                         param.getCenter(),

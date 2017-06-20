@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class LatLongHeatmapProjector implements HeatmapProjector<LatLong, LocalDate> {
+public class LongLatHeatmapProjector implements HeatmapProjector<LongLat, LocalDate> {
 
     private static float calculateActualXScale(float scaleValue) {
         return scaleValue;
@@ -29,15 +29,15 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong, LocalD
 
     private static Logger LOG = LogManager.getLogger();
 
-    private final GeodeticDataCollection<LatLong, LocalDate> geodeticDataCollection;
+    private final GeodeticDataCollection<LongLat, LocalDate> geodeticDataCollection;
     private HeatmapDimensions size;
-    private LatLong center;
+    private LongLat center;
     private float scale;
     private Optional<Predicate<LocalDate>> filter;
 
-    public LatLongHeatmapProjector(
-            GeodeticDataCollection<LatLong, LocalDate> geodeticDataCollection,
-            HeatmapDescriptor<LatLong, LocalDate> heatmapDescriptor
+    public LongLatHeatmapProjector(
+            GeodeticDataCollection<LongLat, LocalDate> geodeticDataCollection,
+            HeatmapDescriptor<LongLat, LocalDate> heatmapDescriptor
     ) {
         this.geodeticDataCollection = geodeticDataCollection;
         this.size = heatmapDescriptor.getDimensions();
@@ -47,7 +47,7 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong, LocalD
     }
 
     @Override
-    public GeodeticDataCollection<LatLong, LocalDate> getGeodeticDataCollection() {
+    public GeodeticDataCollection<LongLat, LocalDate> getGeodeticDataCollection() {
         return geodeticDataCollection;
     }
 
@@ -63,15 +63,15 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong, LocalD
 
     @Override
     public void translate(EuclidPoint point) {
-        this.center = new LatLong(
+        this.center = new LongLat(
                 center.getX() + point.getX() * calculateActualXScale(scale),
                 center.getY() + point.getY() * calculateActualYScale(scale)
         );
     }
 
     @Override
-    public void translate(LatLong point) {
-        this.center = new LatLong(
+    public void translate(LongLat point) {
+        this.center = new LongLat(
                 center.getX() + point.getX(),
                 center.getY() + point.getY()
         );
@@ -88,7 +88,7 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong, LocalD
     }
 
     @Override
-    public void setCenter(LatLong point) {
+    public void setCenter(LongLat point) {
         this.center = point;
     }
 
@@ -99,7 +99,7 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong, LocalD
         float offsetLat = (point.getX() - size.getWidth() / 2.0f) * calculateActualXScale(diffScale);
         float offsetLong = (point.getY() - size.getHeight() / 2.0f) * calculateActualYScale(diffScale);
 
-        this.translate(new LatLong(
+        this.translate(new LongLat(
                 offsetLat,
                 offsetLong
         ));
@@ -108,13 +108,13 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong, LocalD
     }
 
     @Override
-    public void scaleAround(LatLong point, float scaleMult) {
+    public void scaleAround(LongLat point, float scaleMult) {
         float scaleDetla = calculateScaleDelta(scaleMult);
 
         float offsetLat = point.getX() * calculateScaleDelta(scaleDetla);
         float offsetLong = point.getY() * calculateScaleDelta(scaleDetla);
 
-        this.translate(new LatLong(
+        this.translate(new LongLat(
                 offsetLat,
                 offsetLong
         ));
@@ -128,7 +128,7 @@ public class LatLongHeatmapProjector implements HeatmapProjector<LatLong, LocalD
     }
 
     @Override
-    public Heatmap<LatLong, LocalDate> project() {
+    public Heatmap<LongLat, LocalDate> project() {
         if (size == null) {
             throw new IllegalStateException("a size must be defined");
         }

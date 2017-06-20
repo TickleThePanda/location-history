@@ -6,8 +6,8 @@ import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDimension
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapProjector;
 import co.uk.ticklethepanda.location.history.cartograph.points.Converters;
 import co.uk.ticklethepanda.location.history.cartograph.points.googlelocation.GoogleLocations;
-import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LatLong;
-import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LatLongHeatmapProjector;
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLatHeatmapProjector;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class QuadtreeTest {
     @Ignore
     public void performance() throws FileNotFoundException {
 
-        List<GeodeticData<LatLong, LocalDate>> data = loadFromFile();
+        List<GeodeticData<LongLat, LocalDate>> data = loadFromFile();
 
         System.out.println("bucketSize, average time (ms)");
 
@@ -42,15 +42,15 @@ public class QuadtreeTest {
 
             long sum = 0;
             for (int iteration = 0; iteration < N_ITERATIONS; iteration++) {
-                Quadtree<LatLong, LocalDate> quadtree = new Quadtree<>(data, bucketSize);
+                Quadtree<LongLat, LocalDate> quadtree = new Quadtree<>(data, bucketSize);
 
                 long startTime = System.nanoTime();
 
-                HeatmapProjector<LatLong, LocalDate> projector = new LatLongHeatmapProjector(
+                HeatmapProjector<LongLat, LocalDate> projector = new LongLatHeatmapProjector(
                         quadtree,
                         new HeatmapDescriptor<>(
                                 new HeatmapDimensions(250, 190),
-                                new LatLong(-2.51f, 52.1f),
+                                new LongLat(-2.51f, 52.1f),
                                 0.0428f,
                                 t -> t.getDayOfWeek().equals(DayOfWeek.MONDAY))
                 );
@@ -68,7 +68,7 @@ public class QuadtreeTest {
 
     }
 
-    private List<GeodeticData<LatLong, LocalDate>> loadFromFile() throws FileNotFoundException {
+    private List<GeodeticData<LongLat, LocalDate>> loadFromFile() throws FileNotFoundException {
         GoogleLocations locations =
                 GoogleLocations.Loader
                         .fromFile("input/location-history.json");
@@ -77,14 +77,14 @@ public class QuadtreeTest {
                 .convertList(locations.getLocations());
     }
 
-    private List<GeodeticData<LatLong, LocalDate>> generateRandomData() {
+    private List<GeodeticData<LongLat, LocalDate>> generateRandomData() {
         Random random = new Random();
 
-        List<GeodeticData<LatLong, LocalDate>> data = new ArrayList<>();
+        List<GeodeticData<LongLat, LocalDate>> data = new ArrayList<>();
 
         for (int i = 0; i < 1_000_000; i++) {
             data.add(new GeodeticData<>(
-                    new LatLong((float) random.nextDouble() * 1000.0f - 500.0f, (float) random.nextDouble() * 1000.0f - 500.0f),
+                    new LongLat((float) random.nextDouble() * 1000.0f - 500.0f, (float) random.nextDouble() * 1000.0f - 500.0f),
                     LocalDate.now().plusDays((int) (random.nextDouble() * 7.0f - 3.5f))
             ));
         }

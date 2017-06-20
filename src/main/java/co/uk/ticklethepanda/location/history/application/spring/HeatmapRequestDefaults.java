@@ -1,7 +1,7 @@
 package co.uk.ticklethepanda.location.history.application.spring;
 
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDimensions;
-import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LatLong;
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -56,8 +56,8 @@ public class HeatmapRequestDefaults {
         return scale;
     }
 
-    public LatLong getCenter() {
-        return new LatLong(centerLat, centerLong);
+    public LongLat getCenter() {
+        return new LongLat(centerLat, centerLong);
     }
 
     public HeatmapDimensions getSize() {

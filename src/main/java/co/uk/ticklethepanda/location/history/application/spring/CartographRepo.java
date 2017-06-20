@@ -5,7 +5,7 @@ import co.uk.ticklethepanda.location.history.cartograph.GeodeticDataCollection;
 import co.uk.ticklethepanda.location.history.cartograph.cartographs.quadtree.Quadtree;
 import co.uk.ticklethepanda.location.history.cartograph.points.Converters;
 import co.uk.ticklethepanda.location.history.cartograph.points.googlelocation.GoogleLocations;
-import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LatLong;
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class CartographRepo {
 
     private final long accuracyThreshold;
     private String filePath;
-    private GeodeticDataCollection<LatLong, LocalDate> cartograph;
+    private GeodeticDataCollection<LongLat, LocalDate> cartograph;
 
     @Autowired
     public CartographRepo(
@@ -67,7 +67,7 @@ public class CartographRepo {
 
         LOG.info("Generating map...");
 
-        List<GeodeticData<LatLong, LocalDate>> points =
+        List<GeodeticData<LongLat, LocalDate>> points =
                 Converters.GOOGLE_TO_LAT_LONG
                         .convertList(locations.getLocations());
 
@@ -96,7 +96,7 @@ public class CartographRepo {
     }
 
 
-    public GeodeticDataCollection<LatLong, LocalDate> getCartograph() {
+    public GeodeticDataCollection<LongLat, LocalDate> getCartograph() {
         return this.cartograph;
     }
 

@@ -2,11 +2,11 @@ package co.uk.ticklethepanda.location.history.cartograph.points.latlong;
 
 import co.uk.ticklethepanda.location.history.cartograph.Point;
 
-public class LatLong implements Point {
+public class LongLat implements Point {
     private final float x;
     private final float y;
 
-    public LatLong(float x, float y) {
+    public LongLat(float x, float y) {
         this.x = x;
         this.y = y;
     }
@@ -34,10 +34,10 @@ public class LatLong implements Point {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LatLong latLongDate = (LatLong) o;
+        LongLat longLatDate = (LongLat) o;
 
-        if (Float.compare(latLongDate.x, x) != 0) return false;
-        return Float.compare(latLongDate.y, y) == 0;
+        if (Float.compare(longLatDate.x, x) != 0) return false;
+        return Float.compare(longLatDate.y, y) == 0;
     }
 
     @Override
