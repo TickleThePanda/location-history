@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
 import java.util.Arrays;
@@ -59,6 +60,9 @@ public class HeatmapController {
         if (x != null ^ y != null) {
             throw new IllegalArgumentException("expected neither or both x and y to be specifed");
         }
+        if (scale != null && scale < defaults.getMinScale()) {
+            throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
+        }
 
         HeatmapRequestDto defaultRequest = new HeatmapRequestDto();
         defaultRequest.setWidth(width != null ? width : defaults.getHeatmapWidth());
@@ -78,11 +82,6 @@ public class HeatmapController {
     public byte[] getLocationHistoryMapImage(
             @ModelAttribute("default-heatmap") HeatmapRequestDto param
     ) throws IOException {
-
-        if (param.getScale() < defaults.getMinScale()) {
-            throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
-        }
-
         return mapImageService.getHeatmapImage(
                 new HeatmapDescriptor<>(param.getSize(), param.getCenter(), param.getScale()),
                 param.getPixelSize()
@@ -98,10 +97,6 @@ public class HeatmapController {
             @ModelAttribute("default-heatmap") HeatmapRequestDto param,
             @RequestParam("weekday") DayOfWeek dayOfWeek
     ) throws IOException {
-
-        if (param.getScale() < defaults.getMinScale()) {
-            throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
-        }
 
         return mapImageService.getHeatmapImage(
                 new HeatmapDescriptor<>(
@@ -123,10 +118,6 @@ public class HeatmapController {
             @RequestParam("month") Month month
     ) throws IOException {
 
-        if (param.getScale() < defaults.getMinScale()) {
-            throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
-        }
-
         return mapImageService.getHeatmapImage(
                 new HeatmapDescriptor<>(
                         param.getSize(),
@@ -147,8 +138,10 @@ public class HeatmapController {
             @RequestParam("yearMonth") YearMonth yearMonth
     ) throws IOException {
 
-        if (param.getScale() < defaults.getMinScale()) {
-            throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
+        YearMonth lastMonth = YearMonth.now().minusMonths(1);
+
+        if(lastMonth.isBefore(yearMonth) || lastMonth.equals(yearMonth)) {
+            throw new IllegalArgumentException("yearMonth must be before last month");
         }
 
         return mapImageService.getHeatmapImage(
@@ -171,10 +164,6 @@ public class HeatmapController {
             @ModelAttribute("default-heatmap") HeatmapRequestDto param,
             @RequestParam("year") int year
     ) throws IOException {
-
-        if (param.getScale() < defaults.getMinScale()) {
-            throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
-        }
 
         return mapImageService.getHeatmapImage(
                 new HeatmapDescriptor<>(
