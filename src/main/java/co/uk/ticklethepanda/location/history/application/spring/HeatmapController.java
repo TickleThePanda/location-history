@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
 import java.util.Arrays;
@@ -29,49 +28,20 @@ public class HeatmapController {
 
     private final HeatmapService heatmapService;
     private final MapImageService mapImageService;
-    private final HeatmapRequestDefaults defaults;
     private final LocalDateFilterFactory filters;
+
+    private final HeatmapParamResolver heatmapParamResolver;
 
     @Autowired
     public HeatmapController(
             HeatmapService cartographService,
             MapImageService mapImageService,
-            HeatmapRequestDefaults defaults,
-            LocalDateFilterFactory filters
-    ) {
+            LocalDateFilterFactory filters,
+            HeatmapParamResolver heatmapParamResolver) {
         this.heatmapService = cartographService;
         this.mapImageService = mapImageService;
-        this.defaults = defaults;
         this.filters = filters;
-    }
-
-    @ModelAttribute("default-heatmap")
-    public HeatmapRequestDto getHeatmapRequest(
-            @RequestParam(required = false) Integer width,
-            @RequestParam(required = false) Integer height,
-            @RequestParam(required = false) Integer pixelSize,
-            @RequestParam(required = false) Float x,
-            @RequestParam(required = false) Float y,
-            @RequestParam(required = false) Float scale
-    ) {
-        if (width != null ^ height != null) {
-            throw new IllegalArgumentException("expected neither or both width and height to be specifed");
-        }
-        if (x != null ^ y != null) {
-            throw new IllegalArgumentException("expected neither or both x and y to be specifed");
-        }
-        if (scale != null && scale < defaults.getMinScale()) {
-            throw new IllegalArgumentException("scale must be more than " + defaults.getMinScale());
-        }
-
-        HeatmapRequestDto defaultRequest = new HeatmapRequestDto();
-        defaultRequest.setWidth(width != null ? width : defaults.getHeatmapWidth());
-        defaultRequest.setHeight(height != null ? height : defaults.getHeatmapHeight());
-        defaultRequest.setPixelSize(pixelSize != null ? pixelSize : defaults.getPixelSize());
-        defaultRequest.setX(x != null ? x : defaults.getCenterLat());
-        defaultRequest.setY(y != null ? y : defaults.getCenterLong());
-        defaultRequest.setScale(scale != null ? scale : defaults.getScale());
-        return defaultRequest;
+        this.heatmapParamResolver = heatmapParamResolver;
     }
 
     @RequestMapping(
@@ -80,11 +50,12 @@ public class HeatmapController {
     )
     @ResponseBody
     public byte[] getLocationHistoryMapImage(
-            @ModelAttribute("default-heatmap") HeatmapRequestDto param
+            @ModelAttribute("default-heatmap") HeatmapRequestDto dto
     ) throws IOException {
+        HeatmapParams params = heatmapParamResolver.resolve(dto);
         return mapImageService.getHeatmapImage(
-                new HeatmapDescriptor<>(param.getSize(), param.getCenter(), param.getScale()),
-                param.getPixelSize()
+                params.getHeatmapDescriptor(),
+                params.getPixelSize()
         );
     }
 
@@ -94,17 +65,14 @@ public class HeatmapController {
     )
     @ResponseBody
     public byte[] getLocationHistoryMapImageByDayOfWeek(
-            @ModelAttribute("default-heatmap") HeatmapRequestDto param,
+            @ModelAttribute("default-heatmap") HeatmapRequestDto dto,
             @RequestParam("weekday") DayOfWeek dayOfWeek
     ) throws IOException {
+        HeatmapParams params = heatmapParamResolver.resolve(dto, filters.get(dayOfWeek));
 
         return mapImageService.getHeatmapImage(
-                new HeatmapDescriptor<>(
-                        param.getSize(),
-                        param.getCenter(),
-                        param.getScale(),
-                        filters.get(dayOfWeek)),
-                param.getPixelSize()
+                params.getHeatmapDescriptor(),
+                params.getPixelSize()
         );
     }
 
@@ -114,17 +82,14 @@ public class HeatmapController {
     )
     @ResponseBody
     public byte[] getLocationHistoryMapImageByMonth(
-            @ModelAttribute("default-heatmap") HeatmapRequestDto param,
+            @ModelAttribute("default-heatmap") HeatmapRequestDto dto,
             @RequestParam("month") Month month
     ) throws IOException {
+        HeatmapParams params = heatmapParamResolver.resolve(dto, filters.get(month));
 
         return mapImageService.getHeatmapImage(
-                new HeatmapDescriptor<>(
-                        param.getSize(),
-                        param.getCenter(),
-                        param.getScale(),
-                        filters.get(month)),
-                param.getPixelSize()
+                params.getHeatmapDescriptor(),
+                params.getPixelSize()
         );
     }
 
@@ -134,7 +99,7 @@ public class HeatmapController {
     )
     @ResponseBody
     public byte[] getLocationHistoryMapImageByYearMonth(
-            @ModelAttribute("default-heatmap") HeatmapRequestDto param,
+            @ModelAttribute("default-heatmap") HeatmapRequestDto dto,
             @RequestParam("yearMonth") YearMonth yearMonth
     ) throws IOException {
 
@@ -144,13 +109,11 @@ public class HeatmapController {
             throw new IllegalArgumentException("yearMonth must be before last month");
         }
 
+        HeatmapParams params = heatmapParamResolver.resolve(dto, filters.get(lastMonth));
+
         return mapImageService.getHeatmapImage(
-                new HeatmapDescriptor<>(
-                        param.getSize(),
-                        param.getCenter(),
-                        param.getScale(),
-                        filters.get(yearMonth)),
-                param.getPixelSize()
+                params.getHeatmapDescriptor(),
+                params.getPixelSize()
         );
     }
 
@@ -161,51 +124,15 @@ public class HeatmapController {
     )
     @ResponseBody
     public byte[] getLocationHistoryMapImageByYear(
-            @ModelAttribute("default-heatmap") HeatmapRequestDto param,
+            @ModelAttribute("default-heatmap") HeatmapRequestDto dto,
             @RequestParam("year") int year
     ) throws IOException {
+        HeatmapParams params = heatmapParamResolver.resolve(dto, filters.get(year));
 
         return mapImageService.getHeatmapImage(
-                new HeatmapDescriptor<>(
-                        param.getSize(),
-                        param.getCenter(),
-                        param.getScale(),
-                        filters.get(year)),
-                param.getPixelSize()
+                params.getHeatmapDescriptor(),
+                params.getPixelSize()
         );
-    }
-
-    @RequestMapping
-    @ResponseBody
-    public Heatmap getLocationHistoryMap() throws IOException {
-        return heatmapService.asHeatmap(
-                new HeatmapDescriptor<>(
-                        defaults.getSize(),
-                        defaults.getCenter(),
-                        defaults.getScale())
-        );
-    }
-
-    @RequestMapping(
-            params = "distribution"
-    )
-    @ResponseBody
-    public List<Integer> getPointDistribution() throws IOException {
-        Heatmap heatmap = heatmapService.asHeatmap(
-                new HeatmapDescriptor<>(
-                        defaults.getSize(),
-                        defaults.getCenter(),
-                        defaults.getScale())
-        );
-
-        return Stream.of(heatmap.getHeatmap())
-                .flatMapToInt(e -> Arrays.stream(e))
-                .filter(e -> e != 0)
-                .distinct()
-                .boxed()
-                .sorted(Collections.reverseOrder())
-                .collect(Collectors.toList());
-
     }
 
 }

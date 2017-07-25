@@ -6,6 +6,9 @@ import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
 import java.io.Serializable;
 
 public class HeatmapRequestDto implements Serializable {
+
+    private String name;
+
     private Integer width;
     private Integer height;
 
@@ -14,6 +17,10 @@ public class HeatmapRequestDto implements Serializable {
     private Float x;
     private Float y;
     private Float scale;
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public void setWidth(Integer width) {
         this.width = width;
@@ -39,6 +46,10 @@ public class HeatmapRequestDto implements Serializable {
         this.scale = scale;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public Integer getWidth() {
         return width;
     }
@@ -55,19 +66,11 @@ public class HeatmapRequestDto implements Serializable {
         return y;
     }
 
-    public HeatmapDimensions getSize() {
-        return new HeatmapDimensions(width, height);
-    }
-
-    public LongLat getCenter() {
-        return new LongLat(x, y);
-    }
-
-    public float getScale() {
+    public Float getScale() {
         return scale;
     }
 
-    public int getPixelSize() {
+    public Integer getPixelSize() {
         return pixelSize;
     }
 
