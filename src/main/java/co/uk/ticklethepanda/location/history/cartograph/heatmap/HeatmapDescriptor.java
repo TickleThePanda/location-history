@@ -1,27 +1,27 @@
 package co.uk.ticklethepanda.location.history.cartograph.heatmap;
 
-import co.uk.ticklethepanda.location.history.cartograph.Point;
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
 
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class HeatmapDescriptor<E extends Point, T> {
+public class HeatmapDescriptor<T> {
 
     private final HeatmapDimensions dimensions;
-    private final E center;
+    private final LongLat center;
     private final float scale;
     private final Optional<Predicate<T>> filter;
 
     public HeatmapDescriptor(
             HeatmapDimensions dimensions,
-            E center,
+            LongLat center,
             float scale) {
         this(dimensions, center, scale, null);
     }
 
     public HeatmapDescriptor(
             HeatmapDimensions dimensions,
-            E center,
+            LongLat center,
             float scale,
             Predicate<T> filter) {
         this.dimensions = dimensions;
@@ -34,7 +34,7 @@ public class HeatmapDescriptor<E extends Point, T> {
         return dimensions;
     }
 
-    public E getCenter() {
+    public LongLat getCenter() {
         return center;
     }
 
@@ -51,7 +51,7 @@ public class HeatmapDescriptor<E extends Point, T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        HeatmapDescriptor<?, ?> that = (HeatmapDescriptor<?, ?>) o;
+        HeatmapDescriptor<?> that = (HeatmapDescriptor<?>) o;
 
         if (Float.compare(that.scale, scale) != 0) return false;
         if (dimensions != null ? !dimensions.equals(that.dimensions) : that.dimensions != null)

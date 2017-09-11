@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class LongLatHeatmapProjector implements HeatmapProjector<LongLat, LocalDate> {
+public class LongLatHeatmapProjector implements HeatmapProjector<LocalDate> {
 
     private static float calculateActualXScale(float scaleValue) {
         return scaleValue;
@@ -29,15 +29,15 @@ public class LongLatHeatmapProjector implements HeatmapProjector<LongLat, LocalD
 
     private static Logger LOG = LogManager.getLogger();
 
-    private final GeodeticDataCollection<LongLat, LocalDate> geodeticDataCollection;
+    private final GeodeticDataCollection<LocalDate> geodeticDataCollection;
     private HeatmapDimensions size;
     private LongLat center;
     private float scale;
     private Optional<Predicate<LocalDate>> filter;
 
     public LongLatHeatmapProjector(
-            GeodeticDataCollection<LongLat, LocalDate> geodeticDataCollection,
-            HeatmapDescriptor<LongLat, LocalDate> heatmapDescriptor
+            GeodeticDataCollection<LocalDate> geodeticDataCollection,
+            HeatmapDescriptor<LocalDate> heatmapDescriptor
     ) {
         this.geodeticDataCollection = geodeticDataCollection;
         this.size = heatmapDescriptor.getDimensions();
@@ -47,7 +47,7 @@ public class LongLatHeatmapProjector implements HeatmapProjector<LongLat, LocalD
     }
 
     @Override
-    public GeodeticDataCollection<LongLat, LocalDate> getGeodeticDataCollection() {
+    public GeodeticDataCollection<LocalDate> getGeodeticDataCollection() {
         return geodeticDataCollection;
     }
 
@@ -64,16 +64,16 @@ public class LongLatHeatmapProjector implements HeatmapProjector<LongLat, LocalD
     @Override
     public void translate(EuclidPoint point) {
         this.center = new LongLat(
-                center.getX() + point.getX() * calculateActualXScale(scale),
-                center.getY() + point.getY() * calculateActualYScale(scale)
+                center.getLongitude() + point.getX() * calculateActualXScale(scale),
+                center.getLatitude() + point.getY() * calculateActualYScale(scale)
         );
     }
 
     @Override
     public void translate(LongLat point) {
         this.center = new LongLat(
-                center.getX() + point.getX(),
-                center.getY() + point.getY()
+                center.getLongitude() + point.getLongitude(),
+                center.getLatitude() + point.getLatitude()
         );
     }
 
@@ -111,8 +111,8 @@ public class LongLatHeatmapProjector implements HeatmapProjector<LongLat, LocalD
     public void scaleAround(LongLat point, float scaleMult) {
         float scaleDetla = calculateScaleDelta(scaleMult);
 
-        float offsetLat = point.getX() * calculateScaleDelta(scaleDetla);
-        float offsetLong = point.getY() * calculateScaleDelta(scaleDetla);
+        float offsetLat = point.getLongitude() * calculateScaleDelta(scaleDetla);
+        float offsetLong = point.getLatitude() * calculateScaleDelta(scaleDetla);
 
         this.translate(new LongLat(
                 offsetLat,
@@ -128,7 +128,7 @@ public class LongLatHeatmapProjector implements HeatmapProjector<LongLat, LocalD
     }
 
     @Override
-    public Heatmap<LongLat, LocalDate> project() {
+    public Heatmap<LocalDate> project() {
         if (size == null) {
             throw new IllegalStateException("a size must be defined");
         }
@@ -143,8 +143,8 @@ public class LongLatHeatmapProjector implements HeatmapProjector<LongLat, LocalD
 
         final int[][] projection = new int[viewWidth][viewHeight];
 
-        final float projectionStartX = center.getX() - (float) viewWidth / 2.0f * xScale;
-        final float projectionStartY = center.getY() - (float) viewHeight / 2.0f * yScale;
+        final float projectionStartX = center.getLongitude() - (float) viewWidth / 2.0f * xScale;
+        final float projectionStartY = center.getLatitude() - (float) viewHeight / 2.0f * yScale;
 
         LOG.trace("bounding rectangle: {}", geodeticDataCollection.getBoundingRectangle());
         LOG.trace("projectionStartX: {}", projectionStartX);

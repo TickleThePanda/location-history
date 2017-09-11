@@ -1,16 +1,18 @@
 package co.uk.ticklethepanda.location.history.cartograph;
 
-public class GeodeticData<S extends Point, T> {
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
 
-    private S point;
+public class GeodeticData<T> {
+
+    private LongLat point;
     private T data;
 
-    public GeodeticData(S point, T data) {
+    public GeodeticData(LongLat point, T data) {
         this.point = point;
         this.data = data;
     }
 
-    public S getPoint() {
+    public LongLat getPoint() {
         return point;
     }
 

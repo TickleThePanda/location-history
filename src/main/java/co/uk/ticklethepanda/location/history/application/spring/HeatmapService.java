@@ -20,7 +20,7 @@ public class HeatmapService {
     }
 
     public Heatmap asHeatmap(
-            HeatmapDescriptor<LongLat, LocalDate> heatmapDescriptor) {
+            HeatmapDescriptor<LocalDate> heatmapDescriptor) {
         return new LongLatHeatmapProjector(repo.getCartograph(), heatmapDescriptor)
                 .project();
     }

@@ -32,7 +32,7 @@ public class QuadtreeTest {
     @Ignore
     public void performance() throws FileNotFoundException {
 
-        List<GeodeticData<LongLat, LocalDate>> data = loadFromFile();
+        List<GeodeticData<LocalDate>> data = loadFromFile();
 
         System.out.println("bucketSize, average time (ms)");
 
@@ -42,11 +42,11 @@ public class QuadtreeTest {
 
             long sum = 0;
             for (int iteration = 0; iteration < N_ITERATIONS; iteration++) {
-                Quadtree<LongLat, LocalDate> quadtree = new Quadtree<>(data, bucketSize);
+                Quadtree<LocalDate> quadtree = new Quadtree<>(data, bucketSize);
 
                 long startTime = System.nanoTime();
 
-                HeatmapProjector<LongLat, LocalDate> projector = new LongLatHeatmapProjector(
+                HeatmapProjector<LocalDate> projector = new LongLatHeatmapProjector(
                         quadtree,
                         new HeatmapDescriptor<>(
                                 new HeatmapDimensions(250, 190),
@@ -68,7 +68,7 @@ public class QuadtreeTest {
 
     }
 
-    private List<GeodeticData<LongLat, LocalDate>> loadFromFile() throws FileNotFoundException {
+    private List<GeodeticData<LocalDate>> loadFromFile() throws FileNotFoundException {
         GoogleLocations locations =
                 GoogleLocations.Loader
                         .fromFile("input/location-history.json");
@@ -77,10 +77,10 @@ public class QuadtreeTest {
                 .convertList(locations.getLocations());
     }
 
-    private List<GeodeticData<LongLat, LocalDate>> generateRandomData() {
+    private List<GeodeticData<LocalDate>> generateRandomData() {
         Random random = new Random();
 
-        List<GeodeticData<LongLat, LocalDate>> data = new ArrayList<>();
+        List<GeodeticData<LocalDate>> data = new ArrayList<>();
 
         for (int i = 0; i < 1_000_000; i++) {
             data.add(new GeodeticData<>(

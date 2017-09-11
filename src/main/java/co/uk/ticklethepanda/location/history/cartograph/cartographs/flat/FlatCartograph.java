@@ -2,28 +2,28 @@ package co.uk.ticklethepanda.location.history.cartograph.cartographs.flat;
 
 import co.uk.ticklethepanda.location.history.cartograph.GeodeticData;
 import co.uk.ticklethepanda.location.history.cartograph.GeodeticDataCollection;
-import co.uk.ticklethepanda.location.history.cartograph.Point;
 import co.uk.ticklethepanda.location.history.cartograph.Rectangle;
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
 
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class FlatCartograph<E extends Point, T> implements GeodeticDataCollection<E, T> {
+public class FlatCartograph<T> implements GeodeticDataCollection<T> {
 
-    private static <E extends Point, T> Rectangle getBoundingRectangle(List<GeodeticData<E, T>> points) {
-        return Point.getBoundingRectangle(points.stream().map(GeodeticData::getPoint).collect(Collectors.toList()));
+    private static <T> Rectangle getBoundingRectangle(List<GeodeticData<T>> points) {
+        return LongLat.getBoundingRectangle(points.stream().map(GeodeticData::getPoint).collect(Collectors.toList()));
     }
 
 
-    private final List<GeodeticData<E, T>> data;
+    private final List<GeodeticData<T>> data;
 
-    public FlatCartograph(List<GeodeticData<E, T>> data) {
+    public FlatCartograph(List<GeodeticData<T>> data) {
         this.data = data;
     }
 
     @Override
-    public void add(GeodeticData<E, T> point) {
+    public void add(GeodeticData<T> point) {
         data.add(point);
     }
 
@@ -37,10 +37,10 @@ public class FlatCartograph<E extends Point, T> implements GeodeticDataCollectio
         int count = 0;
         if (data != null) {
             for (int i = 0; i < data.size(); i++) {
-                GeodeticData<E, T> point = data.get(i);
+                GeodeticData<T> point = data.get(i);
                 if (filter.test(point.getData()) && shape.contains(
-                        point.getPoint().getX(),
-                        point.getPoint().getY())) {
+                        point.getPoint().getLongitude(),
+                        point.getPoint().getLatitude())) {
                     count++;
                 }
             }

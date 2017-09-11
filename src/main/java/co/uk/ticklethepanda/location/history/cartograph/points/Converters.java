@@ -12,7 +12,7 @@ import java.time.LocalDate;
  */
 public class Converters {
 
-    public static final Converter<GoogleLocation, GeodeticData<LongLat, LocalDate>> GOOGLE_TO_LAT_LONG =
+    public static final Converter<GoogleLocation, GeodeticData<LocalDate>> GOOGLE_TO_LAT_LONG =
             p -> {
                 float x = p.getX() / 1e7f;
                 float y = p.getY() / 1e7f;

@@ -1,14 +1,12 @@
 package co.uk.ticklethepanda.location.history.cartograph.points.googlelocation;
 
-import co.uk.ticklethepanda.location.history.cartograph.Point;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
 
-public class GoogleLocation implements Point, Serializable {
+public class GoogleLocation implements Serializable {
     private long timestampMs;
     private long latitudeE7;
     private long longitudeE7;

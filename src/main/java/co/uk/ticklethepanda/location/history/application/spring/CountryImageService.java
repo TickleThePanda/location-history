@@ -15,20 +15,25 @@ public class CountryImageService {
 
     private final CountryRepo countryRepo;
     private final Color outlineColor;
+    private final Color fillColor;
 
     @Autowired
     public CountryImageService(
             CountryRepo countryRepo,
-            @Value("${countries.outline.color}") Integer colorHex
+            @Value("${map.colors.country.outline}") Integer colorHex,
+            @Value("${map.colors.country.fill}") Integer fillHex
     ) {
         this.countryRepo = countryRepo;
 
         this.outlineColor = new Color(colorHex);
+        this.fillColor = new Color(fillHex);
     }
 
+    public BufferedImage drawFill(MapDescriptor mapDescriptor) {
+        return new MapDrawer(countryRepo.getCountries(), mapDescriptor, outlineColor, fillColor).drawFill();
+    }
 
-    public BufferedImage drawMap(MapDescriptor<LongLat> mapDescriptor) {
-
-        return new MapDrawer(countryRepo.getCountries(), mapDescriptor, outlineColor).drawMap();
+    public BufferedImage drawOutline(MapDescriptor mapDescriptor) {
+        return new MapDrawer(countryRepo.getCountries(), mapDescriptor, outlineColor, fillColor).drawOutline();
     }
 }

@@ -2,18 +2,18 @@ package co.uk.ticklethepanda.location.history.cartograph.cartographs.quadtree;
 
 import co.uk.ticklethepanda.location.history.cartograph.GeodeticData;
 import co.uk.ticklethepanda.location.history.cartograph.GeodeticDataCollection;
-import co.uk.ticklethepanda.location.history.cartograph.Point;
 import co.uk.ticklethepanda.location.history.cartograph.Rectangle;
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class Quadtree<E extends Point, T> implements GeodeticDataCollection<E, T> {
+public class Quadtree<T> implements GeodeticDataCollection<T> {
 
-    private static <E extends Point, T> Rectangle getBoundingRectangle(List<GeodeticData<E, T>> points) {
-        return Point.getBoundingRectangle(points.stream().map(GeodeticData::getPoint).collect(Collectors.toList()));
+    private static <T> Rectangle getBoundingRectangle(List<GeodeticData<T>> points) {
+        return LongLat.getBoundingRectangle(points.stream().map(GeodeticData::getPoint).collect(Collectors.toList()));
     }
 
     private static final int DEFAULT_MAX_STORAGE = 75;
@@ -26,15 +26,15 @@ public class Quadtree<E extends Point, T> implements GeodeticDataCollection<E, T
     private final Rectangle boundingRectangle;
     private final int nodeMaxStorage;
 
-    private List<GeodeticData<E, T>> points = new ArrayList<>();
+    private List<GeodeticData<T>> points = new ArrayList<>();
 
-    private Quadtree<E, T>[] children = null;
+    private Quadtree<T>[] children = null;
 
     public Quadtree(Rectangle rectangle) {
         this(rectangle, DEFAULT_MAX_STORAGE);
     }
 
-    public Quadtree(List<GeodeticData<E, T>> points) {
+    public Quadtree(List<GeodeticData<T>> points) {
         this(points, DEFAULT_MAX_STORAGE);
     }
 
@@ -43,16 +43,16 @@ public class Quadtree<E extends Point, T> implements GeodeticDataCollection<E, T
         this.boundingRectangle = rectangle;
     }
 
-    public Quadtree(List<GeodeticData<E, T>> points, int nodeMaxStorage) {
+    public Quadtree(List<GeodeticData<T>> points, int nodeMaxStorage) {
         this(getBoundingRectangle(points), nodeMaxStorage);
 
         points.forEach(this::add);
     }
 
-    public void add(GeodeticData<E, T> point) {
+    public void add(GeodeticData<T> point) {
 
         // if this doesn't contain item
-        if (!boundingRectangle.contains(point.getPoint().getX(), point.getPoint().getY()))
+        if (!boundingRectangle.contains(point.getPoint().getLongitude(), point.getPoint().getLatitude()))
             return;
 
         if (points == null || points.size() >= nodeMaxStorage) {
@@ -89,10 +89,10 @@ public class Quadtree<E extends Point, T> implements GeodeticDataCollection<E, T
         if (points != null) {
             // natural for loop for performance
             for (int i = 0; i < points.size(); i++) {
-                GeodeticData<E, T> point = points.get(i);
+                GeodeticData<T> point = points.get(i);
                 if (filter.test(point.getData()) && shape.contains(
-                        point.getPoint().getX(),
-                        point.getPoint().getY())) {
+                        point.getPoint().getLongitude(),
+                        point.getPoint().getLatitude())) {
                     count++;
                 }
             }

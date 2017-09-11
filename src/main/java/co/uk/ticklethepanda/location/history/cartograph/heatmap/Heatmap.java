@@ -1,18 +1,18 @@
 package co.uk.ticklethepanda.location.history.cartograph.heatmap;
 
-import co.uk.ticklethepanda.location.history.cartograph.Point;
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
 
 import java.io.Serializable;
 
-public class Heatmap<E extends Point, T> implements Serializable {
+public class Heatmap<T> implements Serializable {
 
     private final HeatmapDimensions dimensions;
     private final int[][] heatmapArray;
-    private final HeatmapDescriptor<E, T> descriptor;
+    private final HeatmapDescriptor<T> descriptor;
 
     public Heatmap(
             int[][] heatmapArray,
-            E centre,
+            LongLat centre,
             float scale
     ) {
         this.heatmapArray = heatmapArray;

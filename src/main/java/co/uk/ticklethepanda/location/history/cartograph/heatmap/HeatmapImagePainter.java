@@ -30,11 +30,6 @@ public class HeatmapImagePainter {
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        g2d.setBackground(Color.WHITE);
-
-        g2d.setPaint(Color.WHITE);
-        g2d.fillRect(0, 0, bi.getWidth(), bi.getHeight());
-
         paintMap(heatmap, blockSize, g2d);
 
         return bi;

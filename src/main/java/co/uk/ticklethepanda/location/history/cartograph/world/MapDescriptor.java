@@ -1,13 +1,13 @@
 package co.uk.ticklethepanda.location.history.cartograph.world;
 
-import co.uk.ticklethepanda.location.history.cartograph.Point;
+import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
 
-public class MapDescriptor<T extends Point> {
+public class MapDescriptor {
     private final float scale;
     private final MapDimensions dimensions;
-    private final T center;
+    private final LongLat center;
 
-    public MapDescriptor(MapDimensions dimensions, T center, float scale) {
+    public MapDescriptor(MapDimensions dimensions, LongLat center, float scale) {
         this.dimensions = dimensions;
         this.center = center;
         this.scale = scale;
@@ -21,7 +21,7 @@ public class MapDescriptor<T extends Point> {
         return dimensions;
     }
 
-    public T getCenter() {
+    public LongLat getCenter() {
         return center;
     }
 }

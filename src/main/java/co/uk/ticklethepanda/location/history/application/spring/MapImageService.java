@@ -19,14 +19,17 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class MapImageService {
 
     public static final Logger LOG = LogManager.getLogger();
 
-    private final Color imageBaseColor;
     private final CountryImageService countryImageService;
+    private final Color heatColor;
+    private final Color waterColor;
     private HeatmapService heatmapService;
     private HeatmapImagePainter heatmapPainter;
 
@@ -34,39 +37,52 @@ public class MapImageService {
     public MapImageService(
             HeatmapService heatmapService,
             CountryImageService countryImageService,
-            @Value("${location.history.heatmap.base-color}") Integer colorHex
+            @Value("${map.colors.heat.base}") Integer heatHex,
+            @Value("${map.colors.water}") Integer waterHex
     ) throws IOException {
         this.heatmapService = heatmapService;
-        this.imageBaseColor = new Color(colorHex);
+        this.heatColor = new Color(heatHex);
+        this.waterColor = new Color(waterHex);
         this.heatmapPainter = new HeatmapImagePainter(
-                new HeatmapColourPicker.Monotone(imageBaseColor)
+                new HeatmapColourPicker.Monotone(heatColor)
         );
         this.countryImageService = countryImageService;
     }
 
     @Cacheable("heatmap-image")
     public byte[] getHeatmapImage(
-            HeatmapDescriptor<LongLat, LocalDate> heatmapDescriptor,
+            HeatmapDescriptor<LocalDate> heatmapDescriptor,
             int pixelsPerBlock
     ) throws IOException {
 
-        BufferedImage image = heatmapPainter.paintHeatmap(
-                heatmapService.asHeatmap(heatmapDescriptor),
-                pixelsPerBlock);
+        int imageWidth = heatmapDescriptor.getDimensions().getWidth() * pixelsPerBlock;
+        int imageHeight = heatmapDescriptor.getDimensions().getHeight() * pixelsPerBlock;
 
-        MapDescriptor<LongLat> mapDescriptor = new MapDescriptor<>(
-                new MapDimensions(
-                        heatmapDescriptor.getDimensions().getWidth() * pixelsPerBlock,
-                        heatmapDescriptor.getDimensions().getHeight() * pixelsPerBlock),
+        MapDescriptor mapDescriptor = new MapDescriptor(
+                new MapDimensions(imageWidth, imageHeight),
                 heatmapDescriptor.getCenter(),
                 heatmapDescriptor.getScale() / pixelsPerBlock
         );
 
-        Graphics2D g = (Graphics2D) image.getGraphics();
+        List<BufferedImage> images = new ArrayList<>();
 
-        g.drawImage(countryImageService.drawMap(mapDescriptor), 0, 0, null);
+        images.add(countryImageService.drawFill(mapDescriptor));
+        images.add(heatmapPainter.paintHeatmap(
+                heatmapService.asHeatmap(heatmapDescriptor),
+                pixelsPerBlock));
+        images.add(countryImageService.drawOutline(mapDescriptor));
 
-        return convertImageToArray(image);
+        BufferedImage all = new BufferedImage(
+                imageWidth, imageHeight,
+                BufferedImage.TYPE_4BYTE_ABGR);
+
+        Graphics2D g = (Graphics2D) all.getGraphics();
+
+        g.setColor(waterColor);
+        g.fillRect(0, 0, imageWidth, imageHeight);
+        images.forEach(image -> g.drawImage(image, 0, 0, null));
+
+        return convertImageToArray(all);
     }
 
     public byte[] convertImageToArray(BufferedImage image) throws IOException {

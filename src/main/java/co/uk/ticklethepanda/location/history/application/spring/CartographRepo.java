@@ -34,7 +34,7 @@ public class CartographRepo {
 
     private final long accuracyThreshold;
     private String filePath;
-    private GeodeticDataCollection<LongLat, LocalDate> cartograph;
+    private GeodeticDataCollection<LocalDate> cartograph;
 
     @Autowired
     public CartographRepo(
@@ -67,7 +67,7 @@ public class CartographRepo {
 
         LOG.info("Generating map...");
 
-        List<GeodeticData<LongLat, LocalDate>> points =
+        List<GeodeticData<LocalDate>> points =
                 Converters.GOOGLE_TO_LAT_LONG
                         .convertList(locations.getLocations());
 
@@ -96,7 +96,7 @@ public class CartographRepo {
     }
 
 
-    public GeodeticDataCollection<LongLat, LocalDate> getCartograph() {
+    public GeodeticDataCollection<LocalDate> getCartograph() {
         return this.cartograph;
     }
 
