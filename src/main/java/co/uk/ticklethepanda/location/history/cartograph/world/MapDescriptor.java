@@ -1,6 +1,6 @@
 package co.uk.ticklethepanda.location.history.cartograph.world;
 
-import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
+import co.uk.ticklethepanda.location.history.cartograph.projection.LongLat;
 
 public class MapDescriptor {
     private final float scale;
@@ -24,4 +24,5 @@ public class MapDescriptor {
     public LongLat getCenter() {
         return center;
     }
+
 }

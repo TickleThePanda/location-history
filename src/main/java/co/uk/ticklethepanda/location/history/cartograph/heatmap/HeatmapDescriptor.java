@@ -1,6 +1,6 @@
 package co.uk.ticklethepanda.location.history.cartograph.heatmap;
 
-import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
+import co.uk.ticklethepanda.location.history.cartograph.projection.LongLat;
 
 import java.util.Optional;
 import java.util.function.Predicate;

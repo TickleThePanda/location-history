@@ -1,6 +1,6 @@
 package co.uk.ticklethepanda.location.history.cartograph.world;
 
-import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
+import co.uk.ticklethepanda.location.history.cartograph.projection.LongLat;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -25,23 +25,30 @@ public class MapDrawer {
 
     private final float startX;
     private final float startY;
+
     private final int width;
     private final int height;
-    private final float scale;
 
-    public MapDrawer(List<List<LongLat>> countries, MapDescriptor mapDescriptor, Color outline, Color fill) {
+    private final float scale;
+    private final float scaleX;
+    private final float scaleY;
+
+    public MapDrawer(WorldMap worldMap, MapDescriptor mapDescriptor, Color outline, Color fill) {
 
         this.scale = mapDescriptor.getScale();
+        this.scaleX = calculateActualXScale(scale);
+        this.scaleY = calculateActualYScale(scale);
         this.width = mapDescriptor.getDimensions().getWidth();
         this.height = mapDescriptor.getDimensions().getHeight();
-        this.startX = mapDescriptor.getCenter().getLongitude() - (width * calculateActualXScale(scale)) / 2f;
-        this.startY = mapDescriptor.getCenter().getLatitude() - (height * calculateActualYScale(scale)) / 2f;
+        this.startX = mapDescriptor.getCenter().getLongitude() - (width * scaleX) / 2f;
+        this.startY = mapDescriptor.getCenter().getLatitude() - (height * scaleY) / 2f;
         this.outline = outline;
         this.fill = fill;
 
         this.paths = new ArrayList<>();
 
-        for (List<LongLat> polygon : countries) {
+
+        for (List<LongLat> polygon : worldMap.getCountryOutlines()) {
             Path2D path = new Path2D.Double();
             Point2D last = calcuate(polygon.get(polygon.size() - 1));
             path.moveTo(last.getX(), last.getY());
@@ -90,7 +97,8 @@ public class MapDrawer {
     }
 
     private Point2D calcuate(LongLat longLat) {
-        return new Point2D.Float((longLat.getLongitude() - startX) / calculateActualXScale(scale),
-                (longLat.getLatitude() - startY) / calculateActualYScale(scale));
+
+        return new Point2D.Float((longLat.getLongitude() - startX) / scaleX,
+                (longLat.getLatitude() - startY) / scaleY);
     }
 }

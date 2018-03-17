@@ -1,8 +1,8 @@
 package co.uk.ticklethepanda.location.history.cartograph.heatmap;
 
-import co.uk.ticklethepanda.location.history.cartograph.GeodeticDataCollection;
-import co.uk.ticklethepanda.location.history.cartograph.points.euclid.EuclidPoint;
-import co.uk.ticklethepanda.location.history.cartograph.points.latlong.LongLat;
+import co.uk.ticklethepanda.location.history.cartograph.model.GeodeticDataCollection;
+import co.uk.ticklethepanda.location.history.cartograph.projection.EuclidPoint;
+import co.uk.ticklethepanda.location.history.cartograph.projection.LongLat;
 
 import java.util.function.Predicate;
 
