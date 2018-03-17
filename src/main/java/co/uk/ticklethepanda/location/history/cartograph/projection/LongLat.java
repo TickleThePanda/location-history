@@ -5,58 +5,13 @@ import co.uk.ticklethepanda.location.history.cartograph.Rectangle;
 import java.util.List;
 
 
-public class LongLat {
+public class LongLat implements Point {
     private final float longitude;
     private final float latitude;
 
     public LongLat(float longitude, float latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
-    }
-
-    public static LongLat getMaxBound(
-            List<LongLat> locations) {
-        if (locations.size() == 0) {
-            return null;
-        }
-        float maxX = locations.get(0).getLongitude();
-        float maxY = locations.get(0).getLatitude();
-        for (LongLat mapPoint : locations) {
-            maxX = Math.max(maxX, mapPoint.getLongitude());
-            maxY = Math.max(maxY, mapPoint.getLatitude());
-        }
-        return new LongLat(maxX, maxY);
-    }
-
-    public static LongLat getMinBound(
-            List<LongLat> locations) {
-        if (locations.size() == 0) {
-            return null;
-        }
-        float minX = locations.get(0).getLongitude();
-        float minY = locations.get(0).getLatitude();
-        for (LongLat mapPoint : locations) {
-            minX = Math.min(minX, mapPoint.getLongitude());
-            minY = Math.min(minY, mapPoint.getLatitude());
-        }
-        return new LongLat(minX, minY);
-    }
-
-    public static Rectangle getBoundingRectangle(
-            List<LongLat> locations) {
-        if (locations.size() == 0) {
-            return null;
-        }
-        LongLat min = LongLat.getMinBound(locations);
-        LongLat max = LongLat.getMaxBound(locations);
-
-        float rectangleWidth = max.getLongitude() - min.getLongitude();
-        float rectangleHeight = max.getLatitude() - min.getLatitude();
-
-        Rectangle rect = new Rectangle(min.getLongitude(), min.getLatitude(),
-                rectangleWidth, rectangleHeight);
-
-        return rect;
     }
 
     public float getLongitude() {
@@ -97,4 +52,14 @@ public class LongLat {
         return result;
     }
 
+
+    @Override
+    public float getHorizontalComponent() {
+        return longitude;
+    }
+
+    @Override
+    public float getVerticalComponent() {
+        return latitude;
+    }
 }

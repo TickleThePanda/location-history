@@ -2,6 +2,7 @@ package co.uk.ticklethepanda.location.history.cartograph.world;
 
 import co.uk.ticklethepanda.location.history.cartograph.Rectangle;
 import co.uk.ticklethepanda.location.history.cartograph.projection.LongLat;
+import co.uk.ticklethepanda.location.history.cartograph.projection.Point;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ public class WorldMap {
 
         public Country(List<LongLat> countryOutline) {
             this.countryOutline = countryOutline;
-            this.boundingRectangle = LongLat.getBoundingRectangle(countryOutline);
+            this.boundingRectangle = Point.getBoundingRectangle(countryOutline);
         }
     }
 

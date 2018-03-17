@@ -1,14 +1,15 @@
 package co.uk.ticklethepanda.location.history.cartograph.heatmap;
 
-import co.uk.ticklethepanda.location.history.cartograph.model.GeodeticDataCollection;
+import co.uk.ticklethepanda.location.history.cartograph.model.PointDataCollection;
 import co.uk.ticklethepanda.location.history.cartograph.projection.EuclidPoint;
 import co.uk.ticklethepanda.location.history.cartograph.projection.LongLat;
+import co.uk.ticklethepanda.location.history.cartograph.projection.Point;
 
 import java.util.function.Predicate;
 
-public interface HeatmapProjector<T> {
+public interface HeatmapProjector<T extends Point, U> {
 
-    GeodeticDataCollection<T> getGeodeticDataCollection();
+    PointDataCollection<T, U> getPointDataCollection();
 
     HeatmapDimensions getViewSize();
 
@@ -28,8 +29,8 @@ public interface HeatmapProjector<T> {
 
     void scaleAround(LongLat point, float v);
 
-    void setFilter(Predicate<T> filter);
+    void setFilter(Predicate<U> filter);
 
-    Heatmap<T> project();
+    Heatmap<U> project();
 
 }

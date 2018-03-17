@@ -1,6 +1,6 @@
 package co.uk.ticklethepanda.location.history.cartograph.projection;
 
-public class EuclidPoint {
+public class EuclidPoint implements Point {
 
     private final float x;
     private final float y;
@@ -15,6 +15,17 @@ public class EuclidPoint {
     }
 
     public float getY() {
+        return y;
+    }
+
+
+    @Override
+    public float getHorizontalComponent() {
+        return x;
+    }
+
+    @Override
+    public float getVerticalComponent() {
         return y;
     }
 }

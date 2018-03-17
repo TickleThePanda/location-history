@@ -1,7 +1,9 @@
 package co.uk.ticklethepanda.location.history.application.spring.cartograph;
 
-import co.uk.ticklethepanda.location.history.cartograph.model.GeodeticDataCollection;
+import co.uk.ticklethepanda.location.history.cartograph.model.PointDataCollection;
 import co.uk.ticklethepanda.location.history.cartograph.models.quadtree.Quadtree;
+import co.uk.ticklethepanda.location.history.cartograph.projection.EuclidPoint;
+import co.uk.ticklethepanda.location.history.cartograph.projection.LongLat;
 import co.uk.ticklethepanda.location.history.data.loader.geodetic.GeodeticDataLoadException;
 import co.uk.ticklethepanda.location.history.data.loader.geodetic.google.GoogleLocationGeodeticDataLoader;
 import org.apache.logging.log4j.LogManager;
@@ -20,7 +22,7 @@ public class CartographRepo {
 
     private final GoogleLocationGeodeticDataLoader dataLoader;
 
-    private GeodeticDataCollection<LocalDate> cartograph;
+    private PointDataCollection<LongLat, LocalDate> cartograph;
 
     @Autowired
     public CartographRepo(
@@ -37,7 +39,7 @@ public class CartographRepo {
         LOG.info("Loaded map data");
     }
 
-    public GeodeticDataCollection<LocalDate> getCartograph() {
+    public PointDataCollection<LongLat, LocalDate> getCartograph() {
         return this.cartograph;
     }
 

@@ -1,6 +1,6 @@
 package co.uk.ticklethepanda.location.history.data.loader.geodetic.google;
 
-import co.uk.ticklethepanda.location.history.cartograph.model.GeodeticData;
+import co.uk.ticklethepanda.location.history.cartograph.model.PointData;
 import co.uk.ticklethepanda.location.history.cartograph.projection.LongLat;
 import co.uk.ticklethepanda.location.history.data.loader.geodetic.GeodeticDataLoadException;
 import co.uk.ticklethepanda.location.history.data.loader.geodetic.GeodeticDataLoader;
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 /**
  * Created by panda on 4/13/17.
  */
-public class GoogleLocationGeodeticDataLoader implements GeodeticDataLoader<LocalDate> {
+public class GoogleLocationGeodeticDataLoader implements GeodeticDataLoader<LongLat, LocalDate> {
 
     private String filePath;
     private long accuracyThreshold;
@@ -28,7 +28,7 @@ public class GoogleLocationGeodeticDataLoader implements GeodeticDataLoader<Loca
     }
 
     @Override
-    public List<GeodeticData<LocalDate>> load() throws GeodeticDataLoadException {
+    public List<PointData<LongLat, LocalDate>> load() throws GeodeticDataLoadException {
 
         Gson gson = new Gson();
 
@@ -50,8 +50,8 @@ public class GoogleLocationGeodeticDataLoader implements GeodeticDataLoader<Loca
             stream = stream.filter(l -> l.getAccuracy() < accuracyThreshold);
         }
 
-        List<GeodeticData<LocalDate>> points = stream
-                .map(p -> new GeodeticData<>(new LongLat(p.getX() / 1e7f, p.getY() /1e7f), p.getDate()))
+        List<PointData<LongLat, LocalDate>> points = stream
+                .map(p -> new PointData<>(new LongLat(p.getX() / 1e7f, p.getY() /1e7f), p.getDate()))
                 .collect(Collectors.toList());
 
         return points;

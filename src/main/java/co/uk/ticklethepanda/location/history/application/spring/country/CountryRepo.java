@@ -33,7 +33,7 @@ public class CountryRepo {
 
         LOG.info("Loading countries from file...");
 
-        this.countries = CountryPolygonLoader.countryPolygonLoader("input/countries.country");
+        this.countries = CountryPolygonLoader.countryPolygonLoader(filePath);
     }
 
     public WorldMap getCountries() {

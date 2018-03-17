@@ -1,6 +1,6 @@
 package co.uk.ticklethepanda.location.history.cartograph.projections;
 
-import co.uk.ticklethepanda.location.history.cartograph.model.GeodeticDataCollection;
+import co.uk.ticklethepanda.location.history.cartograph.model.PointDataCollection;
 import co.uk.ticklethepanda.location.history.cartograph.Rectangle;
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.Heatmap;
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDescriptor;
@@ -17,7 +17,7 @@ import java.util.Comparator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class NoProjectionHeatmapProjector implements HeatmapProjector<LocalDate> {
+public class NoProjectionHeatmapProjector implements HeatmapProjector<LongLat, LocalDate> {
 
     private static float calculateActualXScale(float scaleValue) {
         return scaleValue;
@@ -29,17 +29,17 @@ public class NoProjectionHeatmapProjector implements HeatmapProjector<LocalDate>
 
     private static Logger LOG = LogManager.getLogger();
 
-    private final GeodeticDataCollection<LocalDate> geodeticDataCollection;
+    private final PointDataCollection<LongLat, LocalDate> pointDataCollection;
     private HeatmapDimensions size;
     private LongLat center;
     private float scale;
     private Predicate<LocalDate> filter;
 
     public NoProjectionHeatmapProjector(
-            GeodeticDataCollection<LocalDate> geodeticDataCollection,
+            PointDataCollection<LongLat, LocalDate> pointDataCollection,
             HeatmapDescriptor<LocalDate> heatmapDescriptor
     ) {
-        this.geodeticDataCollection = geodeticDataCollection;
+        this.pointDataCollection = pointDataCollection;
         this.size = heatmapDescriptor.getDimensions();
         this.center = heatmapDescriptor.getCenter();
         this.scale = heatmapDescriptor.getScale();
@@ -47,8 +47,8 @@ public class NoProjectionHeatmapProjector implements HeatmapProjector<LocalDate>
     }
 
     @Override
-    public GeodeticDataCollection<LocalDate> getGeodeticDataCollection() {
-        return geodeticDataCollection;
+    public PointDataCollection<LongLat, LocalDate> getPointDataCollection() {
+        return pointDataCollection;
     }
 
     @Override
@@ -146,7 +146,7 @@ public class NoProjectionHeatmapProjector implements HeatmapProjector<LocalDate>
         final float projectionStartX = center.getLongitude() - (float) viewWidth / 2.0f * xScale;
         final float projectionStartY = center.getLatitude() - (float) viewHeight / 2.0f * yScale;
 
-        LOG.trace("bounding rectangle: {}", geodeticDataCollection.getBoundingRectangle());
+        LOG.trace("bounding rectangle: {}", pointDataCollection.getBoundingRectangle());
         LOG.trace("projectionStartX: {}", projectionStartX);
         LOG.trace("projectionStartY: {}", projectionStartY);
 
@@ -161,9 +161,9 @@ public class NoProjectionHeatmapProjector implements HeatmapProjector<LocalDate>
                 );
 
                 if (filter != null) {
-                    projection[x][y] = geodeticDataCollection.countMatchingPoints(block, filter);
+                    projection[x][y] = pointDataCollection.countMatchingPoints(block, filter);
                 } else {
-                    projection[x][y] = geodeticDataCollection.countPoints(block);
+                    projection[x][y] = pointDataCollection.countPoints(block);
                 }
 
             }
@@ -184,7 +184,7 @@ public class NoProjectionHeatmapProjector implements HeatmapProjector<LocalDate>
     @Override
     public String toString() {
         return "LatLongDateHeatmapProjector{" +
-                "geodeticDataCollection.bounds=" + geodeticDataCollection.getBoundingRectangle() +
+                "pointDataCollection.bounds=" + pointDataCollection.getBoundingRectangle() +
                 ", size=" + size +
                 ", center=" + center +
                 ", scaleBy=" + scale +
