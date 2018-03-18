@@ -1,13 +1,13 @@
 package co.uk.ticklethepanda.location.history.application.spring.heatmap;
 
 import co.uk.ticklethepanda.location.history.application.spring.country.CountryImageService;
-import co.uk.ticklethepanda.location.history.application.spring.heatmap.HeatmapService;
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapColourPicker;
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDescriptor;
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapImagePainter;
 import co.uk.ticklethepanda.location.history.cartograph.world.MapDescriptor;
-import co.uk.ticklethepanda.location.history.cartograph.world.MapDimensions;
-import co.uk.ticklethepanda.location.history.cartograph.world.MapDrawer;
+import co.uk.ticklethepanda.location.history.cartograph.world.ImageDimensions;
+import co.uk.ticklethepanda.location.history.cartograph.world.MapTheme;
+import co.uk.ticklethepanda.location.history.cartograph.world.WorldMapDrawer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,8 @@ public class MapImageService {
     private final CountryImageService countryImageService;
     private final Color heatColor;
     private final Color waterColor;
+    private Integer colorHex;
+    private Integer fillHex;
     private final boolean mapEnabled;
     private HeatmapService heatmapService;
     private HeatmapImagePainter heatmapPainter;
@@ -40,10 +42,14 @@ public class MapImageService {
     public MapImageService(
             HeatmapService heatmapService,
             CountryImageService countryImageService,
+            @Value("${map.colors.country.outline}") Integer colorHex,
+            @Value("${map.colors.country.fill}") Integer fillHex,
             @Value("${map.colors.heat.base}") Integer heatHex,
             @Value("${map.colors.water}") Integer waterHex,
             @Value("${map.enabled}") boolean enabled
     ) throws IOException {
+        this.colorHex = colorHex;
+        this.fillHex = fillHex;
         this.mapEnabled = enabled;
         this.heatmapService = heatmapService;
         this.heatColor = new Color(heatHex);
@@ -64,17 +70,17 @@ public class MapImageService {
         int imageHeight = heatmapDescriptor.getDimensions().getHeight() * pixelsPerBlock;
 
         MapDescriptor mapDescriptor = new MapDescriptor(
-                new MapDimensions(imageWidth, imageHeight),
+                new ImageDimensions(imageWidth, imageHeight),
                 heatmapDescriptor.getCenter(),
-                heatmapDescriptor.getScale() / pixelsPerBlock
+                heatmapDescriptor.getBoxSize() / pixelsPerBlock
         );
 
         List<BufferedImage> images = new ArrayList<>();
 
         if(mapEnabled) {
-            MapDrawer drawer = countryImageService.getDrawer(mapDescriptor);
-            images.add(drawer.drawFill());
-            images.add(drawer.drawOutline());
+            WorldMapDrawer drawer = countryImageService.getDrawer();
+            MapTheme theme = new MapTheme(new Color(colorHex), new Color(fillHex));
+            images.add(drawer.draw(mapDescriptor, theme));
         }
         images.add(heatmapPainter.paintHeatmap(
                 heatmapService.asHeatmap(heatmapDescriptor),

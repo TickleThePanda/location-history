@@ -1,33 +1,38 @@
 package co.uk.ticklethepanda.location.history.application.spring.country;
 
+import co.uk.ticklethepanda.location.history.cartograph.projection.Projector;
 import co.uk.ticklethepanda.location.history.cartograph.world.MapDescriptor;
-import co.uk.ticklethepanda.location.history.cartograph.world.MapDrawer;
+import co.uk.ticklethepanda.location.history.cartograph.world.WorldMapDrawer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.awt.*;
 
 @Service
 public class CountryImageService {
 
     private final CountryRepo countryRepo;
-    private final Color outlineColor;
-    private final Color fillColor;
+    private final Projector projector;
+
+    private WorldMapDrawer worldMapDrawer;
 
     @Autowired
     public CountryImageService(
             CountryRepo countryRepo,
-            @Value("${map.colors.country.outline}") Integer colorHex,
-            @Value("${map.colors.country.fill}") Integer fillHex
+            Projector projector
     ) {
         this.countryRepo = countryRepo;
-
-        this.outlineColor = new Color(colorHex);
-        this.fillColor = new Color(fillHex);
+        this.projector = projector;
     }
 
-    public MapDrawer getDrawer(MapDescriptor mapDescriptor) {
-        return new MapDrawer(countryRepo.getCountries(), mapDescriptor, outlineColor, fillColor);
+    @PostConstruct
+    public void init() {
+        this.worldMapDrawer = WorldMapDrawer.createProjector(projector, countryRepo.getCountries());
+    }
+
+    public WorldMapDrawer getDrawer() {
+        return worldMapDrawer;
     }
 }

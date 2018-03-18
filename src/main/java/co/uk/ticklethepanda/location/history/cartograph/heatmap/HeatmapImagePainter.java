@@ -22,8 +22,10 @@ public class HeatmapImagePainter {
 
     public BufferedImage paintHeatmap(Heatmap heatmap, int blockSize) {
 
-        BufferedImage bi = new BufferedImage(heatmap.getDimensions().getWidth() * blockSize,
-                heatmap.getDimensions().getHeight() * blockSize, BufferedImage.TYPE_INT_ARGB);
+        HeatmapDimensions dimensions = heatmap.getDescriptor().getDimensions();
+
+        BufferedImage bi = new BufferedImage(dimensions.getWidth() * blockSize,
+                dimensions.getHeight() * blockSize, BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g2d = bi.createGraphics();
 
@@ -36,9 +38,10 @@ public class HeatmapImagePainter {
     }
 
     private static float getHighestNumber(Heatmap array) {
+        HeatmapDimensions dimensions = array.getDescriptor().getDimensions();
         float maxNumber = 0;
-        for (int x = 0; x < array.getDimensions().getWidth(); x++) {
-            for (int y = 0; y < array.getDimensions().getHeight(); y++) {
+        for (int x = 0; x < dimensions.getWidth(); x++) {
+            for (int y = 0; y < dimensions.getHeight(); y++) {
                 if (array.getValue(x, y) > maxNumber)
                     maxNumber = array.getValue(x, y);
             }
@@ -50,9 +53,10 @@ public class HeatmapImagePainter {
             Heatmap heatmap,
             int blockSize,
             Graphics2D g2d) {
+        HeatmapDimensions dimensions = heatmap.getDescriptor().getDimensions();
         float maxNumber = getHighestNumber(heatmap);
-        for (int x = 0; x < heatmap.getDimensions().getWidth(); x++) {
-            for (int y = 0; y < heatmap.getDimensions().getHeight(); y++) {
+        for (int x = 0; x < dimensions.getWidth(); x++) {
+            for (int y = 0; y < dimensions.getHeight(); y++) {
                 if (heatmap.getValue(x, y) > 0) {
                     Color color = colourPicker.pickColor(
                             heatmap.getValue(x, y), maxNumber);

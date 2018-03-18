@@ -9,24 +9,17 @@ public class HeatmapDescriptor<T> {
 
     private final HeatmapDimensions dimensions;
     private final LongLat center;
-    private final float scale;
+    private final float boxSize;
     private final Optional<Predicate<T>> filter;
 
     public HeatmapDescriptor(
             HeatmapDimensions dimensions,
             LongLat center,
-            float scale) {
-        this(dimensions, center, scale, null);
-    }
-
-    public HeatmapDescriptor(
-            HeatmapDimensions dimensions,
-            LongLat center,
-            float scale,
+            float boxSize,
             Predicate<T> filter) {
         this.dimensions = dimensions;
         this.center = center;
-        this.scale = scale;
+        this.boxSize = boxSize;
         this.filter = Optional.ofNullable(filter);
     }
 
@@ -38,8 +31,8 @@ public class HeatmapDescriptor<T> {
         return center;
     }
 
-    public float getScale() {
-        return scale;
+    public float getBoxSize() {
+        return boxSize;
     }
 
     public Optional<Predicate<T>> getFilter() {
@@ -53,7 +46,7 @@ public class HeatmapDescriptor<T> {
 
         HeatmapDescriptor<?> that = (HeatmapDescriptor<?>) o;
 
-        if (Float.compare(that.scale, scale) != 0) return false;
+        if (Float.compare(that.boxSize, boxSize) != 0) return false;
         if (dimensions != null ? !dimensions.equals(that.dimensions) : that.dimensions != null)
             return false;
         if (center != null ? !center.equals(that.center) : that.center != null) return false;
@@ -66,7 +59,7 @@ public class HeatmapDescriptor<T> {
         long temp;
         result = dimensions != null ? dimensions.hashCode() : 0;
         result = 31 * result + (center != null ? center.hashCode() : 0);
-        temp = Float.floatToIntBits(scale);
+        temp = Float.floatToIntBits(boxSize);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (filter != null ? filter.hashCode() : 0);
         return result;

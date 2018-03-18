@@ -1,5 +1,6 @@
 package co.uk.ticklethepanda.location.history.application.spring.cartograph;
 
+import co.uk.ticklethepanda.location.history.cartograph.model.PointData;
 import co.uk.ticklethepanda.location.history.cartograph.model.PointDataCollection;
 import co.uk.ticklethepanda.location.history.cartograph.models.quadtree.Quadtree;
 import co.uk.ticklethepanda.location.history.cartograph.projection.EuclidPoint;
@@ -14,18 +15,19 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
-public class CartographRepo {
+public class LocationHistoryRepo {
 
     private static final Logger LOG = LogManager.getLogger();
 
     private final GoogleLocationGeodeticDataLoader dataLoader;
 
-    private PointDataCollection<LongLat, LocalDate> cartograph;
+    private List<PointData<LongLat, LocalDate>> history;
 
     @Autowired
-    public CartographRepo(
+    public LocationHistoryRepo(
             @Value("${location.history.file.path}") String filePath,
             @Value("${location.history.accuracyThreshold}") long accuracyThreshold
     ) {
@@ -35,12 +37,12 @@ public class CartographRepo {
     @PostConstruct
     public void init() throws GeodeticDataLoadException {
         LOG.info("Loading map data");
-        cartograph = new Quadtree<>(dataLoader.load());
+        history = dataLoader.load();
         LOG.info("Loaded map data");
     }
 
-    public PointDataCollection<LongLat, LocalDate> getCartograph() {
-        return this.cartograph;
+    public List<PointData<LongLat, LocalDate>> getLocationHistory() {
+        return this.history;
     }
 
 }

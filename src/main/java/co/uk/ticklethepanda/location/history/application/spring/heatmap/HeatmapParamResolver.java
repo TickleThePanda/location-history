@@ -1,6 +1,7 @@
 package co.uk.ticklethepanda.location.history.application.spring.heatmap;
 
 import co.uk.ticklethepanda.location.history.application.spring.named.NamedLocations;
+import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDescriptor;
 import co.uk.ticklethepanda.location.history.cartograph.heatmap.HeatmapDimensions;
 import co.uk.ticklethepanda.location.history.cartograph.projection.LongLat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,12 @@ public class HeatmapParamResolver {
         HeatmapDimensions dimensions = resolveDimensions(name, dto.getWidth(), dto.getHeight());
         LongLat center = resolveLongLat(name, dto.getLongitude(), dto.getLatitude());
         Float scale = resolveScale(name, dto.getScale());
+
+        HeatmapDescriptor<LocalDate> descriptor = new HeatmapDescriptor<>(dimensions, center, scale, filter);
+
         Integer pixelSize = resolvePixelSize(name, dto.getPixelSize());
 
-        return new HeatmapParams(dimensions, center, scale, pixelSize, filter);
+        return new HeatmapParams(descriptor, pixelSize);
     }
 
     private void verify(HeatmapRequestDto dto) {
