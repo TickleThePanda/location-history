@@ -60,9 +60,10 @@ public class WorldMapDrawer {
 
     public BufferedImage draw(MapDescriptor mapDescriptor, MapTheme theme) {
 
+        int width = mapDescriptor.getDimensions().getWidth();
+        int height = mapDescriptor.getDimensions().getHeight();
         BufferedImage image = new BufferedImage(
-                mapDescriptor.getDimensions().getWidth(),
-                mapDescriptor.getDimensions().getHeight(),
+                width, height,
                 BufferedImage.TYPE_INT_ARGB);
 
         EuclidPoint point = projector.toEuclidPoint(mapDescriptor.getCenter());
@@ -70,6 +71,9 @@ public class WorldMapDrawer {
         List<Shape> shapes = transformPath(mapDescriptor, point);
 
         Graphics2D g = getGraphics(image);
+
+        g.setColor(theme.getWaterColor());
+        g.fillRect(0, 0, width, height);
 
         Color fillColor = theme.getFillColor();
         Color outlineColor = theme.getOutlineColor();

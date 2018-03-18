@@ -12,7 +12,6 @@ import java.util.Map;
 @RequestMapping("/location/names")
 public class NamedLocationController {
 
-
     private final NamedLocations namedLocations;
 
     @Autowired

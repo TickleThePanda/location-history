@@ -12,10 +12,6 @@ public class HeatmapImagePainter {
 
     private HeatmapColourPicker colourPicker;
 
-    public HeatmapImagePainter() {
-        this(new HeatmapColourPicker.Greyscale());
-    }
-
     public HeatmapImagePainter(HeatmapColourPicker colourPicker) {
         this.colourPicker = colourPicker;
     }
@@ -49,7 +45,7 @@ public class HeatmapImagePainter {
         return maxNumber;
     }
 
-    public Graphics2D paintMap(
+    private void paintMap(
             Heatmap heatmap,
             int blockSize,
             Graphics2D g2d) {
@@ -70,7 +66,6 @@ public class HeatmapImagePainter {
                 }
             }
         }
-        return g2d;
     }
 
 }
