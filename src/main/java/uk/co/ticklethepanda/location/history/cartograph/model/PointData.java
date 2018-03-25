@@ -19,4 +19,5 @@ public class PointData<T extends Point, U> {
     public U getData() {
         return data;
     }
+
 }

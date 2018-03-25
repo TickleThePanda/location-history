@@ -28,6 +28,7 @@ public class HeatmapConfig {
             Projector projector
     ) throws GeodeticDataLoadException {
         GeodeticDataLoader<LongLat, LocalDate> dataLoader = new GoogleLocationGeodeticDataLoader(filePath, accuracyThreshold);
+
         LOG.info("Loading map data");
         List<PointData<LongLat, LocalDate>> history = dataLoader.load();
         LOG.info("Loaded map data");

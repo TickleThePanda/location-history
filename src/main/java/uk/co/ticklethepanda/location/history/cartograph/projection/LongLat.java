@@ -26,28 +26,6 @@ public class LongLat implements Point {
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        LongLat longLatDate = (LongLat) o;
-
-        if (Float.compare(longLatDate.longitude, longitude) != 0) return false;
-        return Float.compare(longLatDate.latitude, latitude) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        temp = Float.floatToIntBits(longitude);
-        result = (int) (temp ^ (temp >>> 32));
-        temp = Float.floatToIntBits(latitude);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
-    }
-
 
     @Override
     public float getHorizontalComponent() {
@@ -57,5 +35,23 @@ public class LongLat implements Point {
     @Override
     public float getVerticalComponent() {
         return latitude;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LongLat longLat = (LongLat) o;
+
+        if (Float.compare(longLat.longitude, longitude) != 0) return false;
+        return Float.compare(longLat.latitude, latitude) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (longitude != +0.0f ? Float.floatToIntBits(longitude) : 0);
+        result = 31 * result + (latitude != +0.0f ? Float.floatToIntBits(latitude) : 0);
+        return result;
     }
 }

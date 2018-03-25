@@ -66,8 +66,8 @@ public class Rectangle {
     }
 
     public boolean contains(float x, float y) {
-        return this.x <= x && x < maxX &&
-                this.y <= y && y < maxY;
+        return this.x <= x && x <= maxX &&
+                this.y <= y && y <= maxY;
     }
 
     public boolean intersects(Rectangle that) {

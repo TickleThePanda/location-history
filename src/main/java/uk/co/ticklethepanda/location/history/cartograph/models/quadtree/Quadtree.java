@@ -1,16 +1,17 @@
 package uk.co.ticklethepanda.location.history.cartograph.models.quadtree;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import uk.co.ticklethepanda.location.history.cartograph.model.PointData;
 import uk.co.ticklethepanda.location.history.cartograph.model.PointDataCollection;
 import uk.co.ticklethepanda.location.history.cartograph.Rectangle;
 import uk.co.ticklethepanda.location.history.cartograph.projection.Point;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class Quadtree<T extends Point, U> implements PointDataCollection<T, U> {
+public class Quadtree<P extends Point, E> implements PointDataCollection<P, E> {
 
     private static <T extends Point, U> Rectangle getBoundingRectangle(List<PointData<T, U>> points) {
         return Point.getBoundingRectangle(points.stream().map(PointData::getPoint).collect(Collectors.toList()));
@@ -26,15 +27,15 @@ public class Quadtree<T extends Point, U> implements PointDataCollection<T, U> {
     private final Rectangle boundingRectangle;
     private final int nodeMaxStorage;
 
-    private List<PointData<T, U>> points = new ArrayList<>();
+    private Map<P, List<E>> points = new HashMap<>();
 
-    private Quadtree<T, U>[] children = null;
+    private Quadtree<P, E>[] children = null;
 
     public Quadtree(Rectangle rectangle) {
         this(rectangle, DEFAULT_MAX_STORAGE);
     }
 
-    public Quadtree(List<PointData<T, U>> points) {
+    public Quadtree(List<PointData<P, E>> points) {
         this(points, DEFAULT_MAX_STORAGE);
     }
 
@@ -43,28 +44,33 @@ public class Quadtree<T extends Point, U> implements PointDataCollection<T, U> {
         this.boundingRectangle = rectangle;
     }
 
-    public Quadtree(List<PointData<T, U>> points, int nodeMaxStorage) {
+    public Quadtree(List<PointData<P, E>> points, int nodeMaxStorage) {
         this(getBoundingRectangle(points), nodeMaxStorage);
 
         points.forEach(this::add);
     }
 
-    public void add(PointData<T, U> point) {
+    public void add(PointData<P, E> point) {
+        add(point.getPoint(), point.getData());
+    }
+
+    public void add(P point, E data) {
 
         // if this doesn't contain item
-        if (!boundingRectangle.contains(point.getPoint().getHorizontalComponent(), point.getPoint().getVerticalComponent()))
+        if (!boundingRectangle.contains(point.getHorizontalComponent(), point.getVerticalComponent()))
             return;
 
         if (points == null || points.size() >= nodeMaxStorage) {
             if (children == null) {
                 subdivide();
             }
-            children[NW].add(point);
-            children[NE].add(point);
-            children[SE].add(point);
-            children[SW].add(point);
+            children[NW].add(point, data);
+            children[NE].add(point, data);
+            children[SE].add(point, data);
+            children[SW].add(point, data);
         } else {
-            points.add(point);
+            List<E> pointList = points.computeIfAbsent(point, p -> new ArrayList<>());
+            pointList.add(data);
         }
     }
 
@@ -79,7 +85,7 @@ public class Quadtree<T extends Point, U> implements PointDataCollection<T, U> {
     }
 
     @Override
-    public int countMatchingPoints(final Rectangle shape, final Predicate<U> filter) {
+    public int countMatchingPoints(final Rectangle shape, final Predicate<E> filter) {
         if (!shape.intersects(this.boundingRectangle)) {
             return 0;
         }
@@ -87,13 +93,15 @@ public class Quadtree<T extends Point, U> implements PointDataCollection<T, U> {
         int count = 0;
 
         if (points != null) {
-            // natural for loop for performance
-            for (int i = 0; i < points.size(); i++) {
-                PointData<T, U> point = points.get(i);
-                if (filter.test(point.getData()) && shape.contains(
-                        point.getPoint().getHorizontalComponent(),
-                        point.getPoint().getVerticalComponent())) {
-                    count++;
+            for (Map.Entry<P, List<E>> entry: points.entrySet()) {
+                P point = entry.getKey();
+                if (shape.contains(point.getHorizontalComponent(), point.getVerticalComponent())) {
+                    for (E data : entry.getValue()) {
+                        if (filter.test(data)) {
+                            count++;
+                        }
+
+                    }
                 }
             }
         }
@@ -116,6 +124,10 @@ public class Quadtree<T extends Point, U> implements PointDataCollection<T, U> {
         float newWidth = boundingRectangle.getWidth() / 2f;
         float newHeight = boundingRectangle.getHeight() / 2f;
 
+        // the extra width made by these should be ignored from the parent
+        float extraCentreX = Math.nextAfter(boundingRectangle.getCentreX(), Float.MAX_VALUE);
+        float extraCentreY = Math.nextAfter(boundingRectangle.getCentreY(), Float.MAX_VALUE);
+
         // minX, minY
         Rectangle nwRect = new Rectangle(
                 boundingRectangle.getMinX(), boundingRectangle.getMinY(),
@@ -123,17 +135,17 @@ public class Quadtree<T extends Point, U> implements PointDataCollection<T, U> {
 
         // minX, cenY
         Rectangle swRect = new Rectangle(
-                boundingRectangle.getMinX(), boundingRectangle.getCentreY(),
+                boundingRectangle.getMinX(), extraCentreY,
                 newWidth, newHeight);
 
         // cenX, minY
         Rectangle neRect = new Rectangle(
-                boundingRectangle.getCentreX(), boundingRectangle.getMinY(),
+                extraCentreX, boundingRectangle.getMinY(),
                 newWidth, newHeight);
 
         // cenX, cenY
         Rectangle seRect = new Rectangle(
-                boundingRectangle.getCentreX(), boundingRectangle.getCentreY(),
+                extraCentreX, extraCentreY,
                 newWidth, newHeight);
 
         children = new Quadtree[4];
@@ -143,11 +155,14 @@ public class Quadtree<T extends Point, U> implements PointDataCollection<T, U> {
         children[SE] = new Quadtree<>(seRect, nodeMaxStorage);
         children[SW] = new Quadtree<>(swRect, nodeMaxStorage);
 
-        for (int i = 0; i < points.size(); i++) {
-            children[NW].add(points.get(i));
-            children[NE].add(points.get(i));
-            children[SE].add(points.get(i));
-            children[SW].add(points.get(i));
+        for (Map.Entry<P, List<E>> point : points.entrySet()) {
+
+            for(E data : point.getValue()) {
+                children[NW].add(point.getKey(), data);
+                children[NE].add(point.getKey(), data);
+                children[SE].add(point.getKey(), data);
+                children[SW].add(point.getKey(), data);
+            }
         }
 
         this.points = null;

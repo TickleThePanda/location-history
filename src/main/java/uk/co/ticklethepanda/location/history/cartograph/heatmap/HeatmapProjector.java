@@ -1,5 +1,7 @@
 package uk.co.ticklethepanda.location.history.cartograph.heatmap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import uk.co.ticklethepanda.location.history.cartograph.Rectangle;
 import uk.co.ticklethepanda.location.history.cartograph.model.PointData;
 import uk.co.ticklethepanda.location.history.cartograph.models.quadtree.Quadtree;
@@ -13,12 +15,18 @@ import java.util.stream.Collectors;
 
 public class HeatmapProjector<T> {
 
+    private static final Logger LOG = LogManager.getLogger();
+
     public static <T> HeatmapProjector<T> createProjection(Projector projector, List<PointData<LongLat, T>> points) {
         List<PointData<EuclidPoint, T>> euclidPoints = points.stream()
                 .map(p -> new PointData<>(projector.toEuclidPoint(p.getPoint()), p.getData()))
                 .collect(Collectors.toList());
 
         Quadtree<EuclidPoint, T> projection = new Quadtree<>(euclidPoints);
+
+        LOG.trace("Projection contains {} after being given {}",
+                () -> projection.countPoints(projection.getBoundingRectangle()),
+                points::size);
 
         return new HeatmapProjector<>(projector, projection);
     }
