@@ -73,9 +73,15 @@ public class HeatmapProjector<T> {
                 float xBoxStart = startXInPointUnits + (float) x * boxSize;
                 float yBoxStart = startYInPointUnits + (float) y * boxSize;
 
+                /*
+                 * Because the rectangle intersects and contains is inclusive,
+                 * we don't want the inside of the boxes to be slightly smaller.
+                 */
+                float insideBoxSize = Math.nextDown(boxSize);
+
                 Rectangle block = createPositiveRectangle(
                         xBoxStart, yBoxStart,
-                        boxSize, boxSize
+                        insideBoxSize, insideBoxSize
                 );
 
                 if (filter != null) {

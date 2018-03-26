@@ -65,15 +65,27 @@ public class Rectangle {
         return height;
     }
 
+    /**
+     * Checks if a point lies within the external boundary
+     * of the rectangle.
+     * @param x the x coordinate of the point to check
+     * @param y the y coordinate of the point to check
+     * @return whether the point lies within the external boundary of this
+     * rectangle
+     */
     public boolean contains(float x, float y) {
         return this.x <= x && x <= maxX &&
                 this.y <= y && y <= maxY;
     }
 
+    /**
+     * Checks if any point in either rectangle lies within the external
+     * boundary of the other rectangle.
+     * @param that the other rectangle
+     * @return {@code true} if there's an intersection, {@code false} if there's not
+     */
     public boolean intersects(Rectangle that) {
-        return !(this.x > that.maxX ||
-                this.maxX < that.x ||
-                this.y > that.maxY ||
-                this.maxY < that.y);
+        return this.x <= that.maxX && this.maxX >= that.x
+                && this.y <= that.maxY && this.maxY >= that.y;
     }
 }
