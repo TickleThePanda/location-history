@@ -12,6 +12,7 @@
         <start-class>uk.co.ticklethepanda.location.history.application.spring.Application</start-class>
         <junit.jupiter.version>5.1.0</junit.jupiter.version>
         <junit.platform.version>1.1.0</junit.platform.version>
+        <tests.excluded.tags>slow</tests.excluded.tags>
     </properties>
 
     <parent>
@@ -101,7 +102,7 @@
                         <include>**/*TestCase.java</include>
                     </includes>
                     <properties>
-                        <excludeTags>slow</excludeTags>
+                        <excludeTags>${tests.excluded.tags}</excludeTags>
                     </properties>
                 </configuration>
                 <dependencies>
