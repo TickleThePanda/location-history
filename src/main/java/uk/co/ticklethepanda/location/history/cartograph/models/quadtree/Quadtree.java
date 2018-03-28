@@ -1,7 +1,5 @@
 package uk.co.ticklethepanda.location.history.cartograph.models.quadtree;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import uk.co.ticklethepanda.location.history.cartograph.model.PointData;
 import uk.co.ticklethepanda.location.history.cartograph.model.PointDataCollection;
 import uk.co.ticklethepanda.location.history.cartograph.Rectangle;
@@ -81,36 +79,49 @@ public class Quadtree<P extends Point, E> implements PointDataCollection<P, E> {
      * @return
      */
     public int countPoints(Rectangle shape) {
-        return countMatchingPoints(shape, p -> true);
+        return countMatchingPoints(shape, null);
     }
 
     @Override
     public int countMatchingPoints(final Rectangle shape, final Predicate<E> filter) {
+
         if (!shape.intersects(this.boundingRectangle)) {
             return 0;
         }
 
         int count = 0;
 
-        if (points != null) {
-            for (Map.Entry<P, List<E>> entry: points.entrySet()) {
-                P point = entry.getKey();
-                if (shape.contains(point.getHorizontalComponent(), point.getVerticalComponent())) {
-                    for (E data : entry.getValue()) {
-                        if (filter.test(data)) {
-                            count++;
-                        }
+        Stack<Quadtree<P, E>> stack = new Stack<>();
 
+        stack.push(this);
+
+        while (!stack.empty()) {
+            Quadtree<P, E> node = stack.pop();
+
+            if (!node.isLeaf()) {
+                for (int i = 0; i < 4; i++) {
+                    if (shape.intersects(node.boundingRectangle)) {
+                        stack.push(node.children[i]);
+                    }
+                }
+            } else {
+                for (Map.Entry<P, List<E>> entry: node.points.entrySet()) {
+                    P point = entry.getKey();
+                    if (shape.contains(point)) {
+                        List<E> data = entry.getValue();
+                        if (filter == null) {
+                            count += data.size();
+                        } else {
+                            int size = data.size();
+                            for (int i = 0; i < size; i++) {
+                                if (filter.test(data.get(i))) {
+                                    count++;
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
-
-        if (children != null) {
-            count += children[NE].countMatchingPoints(shape, filter);
-            count += children[NW].countMatchingPoints(shape, filter);
-            count += children[SE].countMatchingPoints(shape, filter);
-            count += children[SW].countMatchingPoints(shape, filter);
         }
         return count;
     }
@@ -167,5 +178,9 @@ public class Quadtree<P extends Point, E> implements PointDataCollection<P, E> {
 
         this.points = null;
 
+    }
+
+    public boolean isLeaf() {
+        return children == null;
     }
 }
