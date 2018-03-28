@@ -1,5 +1,7 @@
 package uk.co.ticklethepanda.location.history.cartograph;
 
+import uk.co.ticklethepanda.location.history.cartograph.projection.Point;
+
 public class Rectangle {
 
     private final float x;
@@ -65,6 +67,10 @@ public class Rectangle {
         return height;
     }
 
+    public boolean contains(Point point) {
+        return contains(point.getHorizontalComponent(), point.getVerticalComponent());
+    }
+
     /**
      * Checks if a point lies within the external boundary
      * of the rectangle.
@@ -85,7 +91,9 @@ public class Rectangle {
      * @return {@code true} if there's an intersection, {@code false} if there's not
      */
     public boolean intersects(Rectangle that) {
-        return this.x <= that.maxX && this.maxX >= that.x
-                && this.y <= that.maxY && this.maxY >= that.y;
+        return this.x <= that.maxX
+                && this.maxX >= that.x
+                && this.y <= that.maxY
+                && this.maxY >= that.y;
     }
 }
