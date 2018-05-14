@@ -10,15 +10,16 @@ bindir = bin/
 CC = gcc -O
 CDEBUG = -g
 CFLAGS = $(CDEBUG) -I $(srcdir)
+LINKER = -lm
 
 SRCFILES := $(wildcard $(SRCDIR)/*.c) 
 OBJFILES := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCFILES)) 
 
 $(BINDIR)/$(PRODUCT): $(OBJFILES) 
-	$(CC) $(CFLAGS) $^ -o $@ 
+	$(CC) $(CFLAGS) $^ -o $@ $(LINKER)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) -c $< -o $@ $(LINKER)
 
 .PHONY: clean
 clean:
