@@ -1,3 +1,6 @@
+#ifndef LOCATIONS_H
+#define LOCATIONS_H
+
 typedef struct Location {
   float x;
   float y;
@@ -9,3 +12,6 @@ typedef struct Locations {
   int size;
 } Locations;
 
+void project(Location* location);
+
+#endif

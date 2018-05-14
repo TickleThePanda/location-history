@@ -5,24 +5,6 @@
 #include "locations.h"
 #include "reader.h"
 
-#define BUCKET_SIZE 75
-
-#define NW 0
-#define NE 1
-#define SW 2
-#define SE 3
-
-typedef struct Quadtree {
-  struct Quadtree *quadtrees[4];
-  Location locations[BUCKET_SIZE];
-  int stored;
-} Quadtree;
-
-
-void project(Location *loc) {
-  
-}
-
 void main(int argc, char *argv[]) {
 
   if (argc != 2) {
