@@ -29,7 +29,9 @@ void quadtree_add(Quadtree* quadtree, Location location) {
 }
 
 void quadtree_addAll(Quadtree* quadtree, Locations location) {
-
+  for (int i = 0; i < location.size; i++) {
+    quadtree_add(quadtree, location.locations[i]);
+  }
 }
 
 void quadtree_split(Quadtree* quadtree) {
