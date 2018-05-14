@@ -11,7 +11,9 @@
 #define SE 3
 
 Quadtree* quadtree_create() {
-
+  Quadtree *quadtree = malloc(sizeof(Quadtree));
+  quadtree.quadtrees = NULL;
+  quadtree.size = 0;
 }
 
 void quadtree_destroy(Quadtree* quadtree) {
