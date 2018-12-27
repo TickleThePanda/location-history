@@ -9,7 +9,9 @@ deploy:
   region: eu-central-1
   role: arn:aws:iam::867447333583:role/service-role/LocationHistoryRenderer
   runtime: java8
-  handler: uk.co.ticklethepanda.location.history.application.lambda.LocationHistoryLambda::handleRequest
+  handler_name1: uk.co.ticklethepanda.location.history.application.lambda.LocationHistoryLambda::handleRequest
   access_key_id: AKIAJ2V5AL4BDKHAQNKA
+  zip: location-history-lambda/target/location-history-lambda.jar
   secret_access_key:
     secure: pYAgdVm2KLc1f2wpb7iCdBeosbGlKp/GowsFJbjrWxkyrWJMstH98mprwMUaeKeVnPRB2hfVma8X3r4k8mz5+79NVDLgTFCxXCFoxaOThAgsUSixXpgnrFpGPZ1j1+HauQ9OwGra0RxMIQ6NaaGuwZCNJ7diNqyrCxJVWZkhAXkatxI3d+ddwaSCkc/RrAndjingNWhHacaYXnNf355g8Ok7np6Ezh0BReFo5BjlT/D5Lvr376QwuO44PnhUoKTObWSYLQj42ASkgAsVsMiR4g6OFv64QPu9HUxWfkK53yyuMprXsDKXIWHryLKP5pYAbA1gJX+ihCeyEhdpc/sOwwVgF0eZJHWxYojyodw5A4syzv6Ovz7370afAB4ffg89CWFnYt022cIiurG58ASIQ261KXW7PDBTdu4dp3uL1FUzXOpZImp0PV1IdegGboJ8Cv0Jk7+Kq/uRlasRX9IpHKnpdUDeIWE1lUeL9LBRohDaitKnp7rtEQyPoB3XNWlL8gxECEiON7A/lXdwAVMcKHftUdenB3NmGbFYhgftfgBBg1IBeedQUX3g0skyygNUIxMfASTCHrb5VYjWOpxx3Mb3YUXt/w4Pz/tRpcHqi7LwLxr7XLNykcP1NyUDwd1+c4Sp43jISK5ht3IYaJDxwcT8s4J+Jgkg1UHZy+aXJW8=
+  

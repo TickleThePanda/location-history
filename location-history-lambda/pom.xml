@@ -68,6 +68,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <finalName>location-history-lambda</finalName>
+                </configuration>
             </plugin>
         </plugins>
     </build>
