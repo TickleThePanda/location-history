@@ -9,7 +9,8 @@ deploy:
   region: eu-central-1
   role: arn:aws:iam::867447333583:role/service-role/LocationHistoryRenderer
   runtime: java8
-  handler_name: uk.co.ticklethepanda.location.history.application.lambda.LocationHistoryLambda::handleRequest
+  module_name: uk.co.ticklethepanda.location.history.application.lambda
+  handler_name: LocationHistoryLambda::handleRequest
   access_key_id: AKIAJ2V5AL4BDKHAQNKA
   zip: location-history-lambda/target/location-history-lambda.jar
   secret_access_key:
