@@ -10,7 +10,7 @@ public class HeatmapDescriptor<T> {
     private final HeatmapDimensions dimensions;
     private final LongLat center;
     private final float boxSize;
-    private final Optional<Predicate<T>> filter;
+    private final Predicate<T> filter;
 
     public HeatmapDescriptor(
             HeatmapDimensions dimensions,
@@ -20,7 +20,7 @@ public class HeatmapDescriptor<T> {
         this.dimensions = dimensions;
         this.center = center;
         this.boxSize = boxSize;
-        this.filter = Optional.ofNullable(filter);
+        this.filter = filter;
     }
 
     public HeatmapDimensions getDimensions() {
@@ -36,7 +36,7 @@ public class HeatmapDescriptor<T> {
     }
 
     public Optional<Predicate<T>> getFilter() {
-        return filter;
+        return Optional.ofNullable(filter);
     }
 
     @Override

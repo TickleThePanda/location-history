@@ -19,7 +19,9 @@
     <modules>
         <module>location-history-mapper</module>
         <module>location-history-loader-google</module>
+
         <module>location-history-app</module>
+        <module>location-history-lambda</module>
     </modules>
 
     <build>

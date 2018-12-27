@@ -13,6 +13,8 @@ import uk.co.ticklethepanda.location.history.loader.geodetic.GeodeticDataLoadExc
 import uk.co.ticklethepanda.location.history.loader.geodetic.GeodeticDataLoader;
 import uk.co.ticklethepanda.location.history.loader.geodetic.google.GoogleLocationGeodeticDataLoader;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -26,8 +28,8 @@ public class HeatmapConfig {
             @Value("${location.history.file.path}") String filePath,
             @Value("${location.history.accuracyThreshold}") long accuracyThreshold,
             Projector projector
-    ) throws GeodeticDataLoadException {
-        GeodeticDataLoader<LongLat, LocalDate> dataLoader = new GoogleLocationGeodeticDataLoader(filePath, accuracyThreshold);
+    ) throws GeodeticDataLoadException, FileNotFoundException {
+        GeodeticDataLoader<LongLat, LocalDate> dataLoader = new GoogleLocationGeodeticDataLoader(new FileReader(filePath), accuracyThreshold);
 
         LOG.info("Loading map data");
         List<PointData<LongLat, LocalDate>> history = dataLoader.load();

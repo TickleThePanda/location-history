@@ -2,13 +2,11 @@ package uk.co.ticklethepanda.location.history.loader.geodetic.google;
 
 import uk.co.ticklethepanda.location.history.cartograph.model.PointData;
 import uk.co.ticklethepanda.location.history.cartograph.projection.LongLat;
-import uk.co.ticklethepanda.location.history.loader.geodetic.GeodeticDataLoadException;
 import uk.co.ticklethepanda.location.history.loader.geodetic.GeodeticDataLoader;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.Reader;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,28 +17,21 @@ import java.util.stream.Stream;
  */
 public class GoogleLocationGeodeticDataLoader implements GeodeticDataLoader<LongLat, LocalDate> {
 
-    private String filePath;
+    private final BufferedReader reader;
     private long accuracyThreshold;
 
-    public GoogleLocationGeodeticDataLoader(String filePath, long accuracyThreshold) {
-        this.filePath = filePath;
+    public GoogleLocationGeodeticDataLoader(Reader reader, long accuracyThreshold) {
+        this.reader = new BufferedReader(reader);
+
         this.accuracyThreshold = accuracyThreshold;
     }
 
     @Override
-    public List<PointData<LongLat, LocalDate>> load() throws GeodeticDataLoadException {
+    public List<PointData<LongLat, LocalDate>> load() {
 
         Gson gson = new Gson();
 
-        GoogleLocations locations;
-        try {
-            locations = gson.fromJson(
-                    new BufferedReader(
-                            new FileReader(filePath)
-                    ), GoogleLocations.class);
-        } catch (FileNotFoundException e) {
-            throw new GeodeticDataLoadException(e);
-        }
+        GoogleLocations locations = gson.fromJson(reader, GoogleLocations.class);
 
         Stream<GoogleLocation> stream = locations.getLocations().stream();
 

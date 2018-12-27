@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface GeodeticDataLoader<T extends Point, U> {
 
-    List<PointData<T, U>> load() throws GeodeticDataLoadException;
+    List<PointData<T, U>> load();
 
 }
