@@ -11,9 +11,7 @@
     </parent>
 
     <artifactId>location-history-lambda</artifactId>
-
-    <properties>
-    </properties>
+    <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

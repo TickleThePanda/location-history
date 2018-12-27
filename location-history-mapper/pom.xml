@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>location-history-mapper</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <junit.jupiter.version>5.1.0</junit.jupiter.version>

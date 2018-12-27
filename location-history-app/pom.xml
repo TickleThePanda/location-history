@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>location-history-app</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <start-class>uk.co.ticklethepanda.location.history.application.spring.Application</start-class>
