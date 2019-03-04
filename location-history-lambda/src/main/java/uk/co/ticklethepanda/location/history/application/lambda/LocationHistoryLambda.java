@@ -3,7 +3,7 @@ package uk.co.ticklethepanda.location.history.application.lambda;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.*;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -27,6 +27,7 @@ import java.time.YearMonth;
 import java.util.*;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.zip.*;
 
 public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
 
@@ -36,56 +37,63 @@ public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
     @Override
     public Void handleRequest(S3Event s3Event, Context context) {
 
-        AmazonS3Client client = new AmazonS3Client();
+        try {
 
-        S3Object configObject = client.getObject(CONFIGURATION_BUCKET, "config.json");
-        S3Object historyObject = client.getObject(CONFIGURATION_BUCKET, "history.json");
+            AmazonS3 client = AmazonS3ClientBuilder.defaultClient();
 
-        context.getLogger().log("INFO: got history and config objects");
+            S3Object configObject = client.getObject(CONFIGURATION_BUCKET, "config.json");
+            S3Object historyObject = client.getObject(CONFIGURATION_BUCKET, "history.json");
 
-        InputStreamReader reader = new InputStreamReader(historyObject.getObjectContent());
+            context.getLogger().log("INFO: got history and config objects");
 
-        HeatmapLambdaConfiguration configuration = createConfigFromObject(configObject);
+            HeatmapLambdaConfiguration configuration = createConfigFromObject(configObject);
 
-        HeatmapImagePainter painter = createPainterFromConfig(configuration);
-        HeatmapProjector<LocalDate> projector = createProjectorFromObject(historyObject);
-        Map<String, Predicate<LocalDate>> filters = getFilters(configuration);
+            HeatmapImagePainter painter = createPainterFromConfig(configuration);
+            HeatmapProjector<LocalDate> projector = createProjectorFromObject(historyObject);
+            Map<String, Predicate<LocalDate>> filters = getFilters(configuration);
 
-        context.getLogger().log("INFO: finished loading and setup");
+            context.getLogger().log("INFO: finished loading and setup");
 
-        for (HeatmapConfiguration config : configuration.getHeatmaps()) {
-            for(Map.Entry<String, Predicate<LocalDate>> filter : filters.entrySet()) {
+            for (HeatmapConfiguration config : configuration.getHeatmaps()) {
+                for(Map.Entry<String, Predicate<LocalDate>> filter : filters.entrySet()) {
 
-                String imageKey = "location-history/" + config.getName() + "-" + filter.getKey() + ".png";
+                    String imageKey = "location-history/" + config.getName() + "-" + filter.getKey() + ".png";
 
-                context.getLogger().log("INFO: generating heatmap - " + imageKey);
+                    context.getLogger().log("INFO: generating heatmap - " + imageKey);
 
-                HeatmapDescriptor<LocalDate> descriptor = config.with(filter.getValue());
+                    HeatmapDescriptor<LocalDate> descriptor = config.with(filter.getValue());
 
-                Heatmap<LocalDate> heatmap = projector.project(descriptor);
+                    Heatmap<LocalDate> heatmap = projector.project(descriptor);
 
-                context.getLogger().log("INFO: generated heatmap, painting image - " + imageKey);
+                    context.getLogger().log("INFO: generated heatmap, painting image - " + imageKey);
 
-                BufferedImage image = painter.paintHeatmap(heatmap, 4);
+                    BufferedImage image = painter.paintHeatmap(heatmap, 4);
 
-                context.getLogger().log("INFO: generated image, writing to stream - " + imageKey);
+                    context.getLogger().log("INFO: generated image, writing to stream - " + imageKey);
 
-                InputStream stream = getImageAsStream(image);
+                    InputStream stream = getImageAsStream(image);
 
-                context.getLogger().log("INFO: about to write image - " + imageKey);
+                    context.getLogger().log("INFO: about to write image - " + imageKey);
 
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType("image/png");
-                metadata.setCacheControl("max-age: 86400");
+                    ObjectMetadata metadata = new ObjectMetadata();
+                    metadata.setContentType("image/png");
+                    metadata.setCacheControl("max-age: 86400");
 
-                PutObjectRequest request = new PutObjectRequest(RESULTS_BUCKET, imageKey, stream, metadata)
-                        .withCannedAcl(CannedAccessControlList.PublicRead);
+                    PutObjectRequest request = new PutObjectRequest(RESULTS_BUCKET, imageKey, stream, metadata)
+                            .withCannedAcl(CannedAccessControlList.PublicRead);
 
-                client.putObject(request);
+                    client.putObject(request);
 
+                }
             }
-        }
 
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+
+            context.getLogger().log("ERROR: unable to process location history data: " + e.toString() + '\n' + sw.toString());
+        }
         return null;
     }
 
@@ -94,9 +102,15 @@ public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
         return gson.fromJson(new InputStreamReader(object.getObjectContent()), HeatmapLambdaConfiguration.class);
     }
 
-    private HeatmapProjector<LocalDate> createProjectorFromObject(S3Object object) {
+    private HeatmapProjector<LocalDate> createProjectorFromObject(S3Object object) throws IOException {
+        String historyEncoding = object.getObjectMetadata().getContentEncoding();
 
-        Reader reader = new InputStreamReader(object.getObjectContent());
+        Reader reader;
+        if ("gzip".equals(historyEncoding)) {
+          reader = new InputStreamReader(new GZIPInputStream(object.getObjectContent()));
+        } else {
+          reader = new InputStreamReader(object.getObjectContent());
+        }
 
         GoogleLocationGeodeticDataLoader loader = new GoogleLocationGeodeticDataLoader(reader, -1);
 
