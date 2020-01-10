@@ -7,7 +7,7 @@ target
 *.jpeg
 *.png
 
-*.json
+input/*.json
 
 /location-history-app/input
 
