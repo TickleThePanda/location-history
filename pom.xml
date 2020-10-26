@@ -21,6 +21,8 @@
         <junit.platform.version>1.1.0</junit.platform.version>
 
         <tests.excluded.tags>slow</tests.excluded.tags>
+
+        <log4j.version>2.13.3</log4j.version>
     </properties>
 
     <modules>
@@ -110,7 +112,13 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
-                <version>2.8.2</version>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
