@@ -1,8 +1,8 @@
 language: java
 jdk:
-- oraclejdk8
+  - openjdk14
 after_success:
-- mvn clean cobertura:cobertura coveralls:report
+  - mvn clean cobertura:cobertura coveralls:report
 deploy:
   provider: lambda
   function-name: RenderLocationHistory
@@ -12,7 +12,7 @@ deploy:
   module_name: uk.co.ticklethepanda.location.history.application.lambda
   handler_name: LocationHistoryLambda::handleRequest
   access_key_id: AKIAJ2V5AL4BDKHAQNKA
-  zip: location-history-lambda/target/location-history-lambda.jar
+  zip: apps/lambda/target/location-history-lambda.jar
   timeout: 900
   memory_size: 2048
   secret_access_key:

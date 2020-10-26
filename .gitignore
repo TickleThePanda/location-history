@@ -7,9 +7,11 @@ target
 *.jpeg
 *.png
 
+/data
+
 input/*.json
 
-/location-history-app/input
+/apps/web/data
 
 application.properties
 

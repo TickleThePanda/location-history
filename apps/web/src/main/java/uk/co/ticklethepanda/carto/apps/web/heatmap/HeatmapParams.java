@@ -1,0 +1,23 @@
+package uk.co.ticklethepanda.carto.apps.web.heatmap;
+
+import uk.co.ticklethepanda.carto.core.heatmap.HeatmapDescriptor;
+
+import java.time.LocalDate;
+
+public class HeatmapParams {
+    private final HeatmapDescriptor<LocalDate> heatmapDescriptor;
+    private final int pixelSize;
+
+    public HeatmapParams(HeatmapDescriptor<LocalDate> heatmapDescriptor, int pixelSize) {
+        this.heatmapDescriptor = heatmapDescriptor;
+        this.pixelSize = pixelSize;
+    }
+
+    public int getPixelSize() {
+        return pixelSize;
+    }
+
+    public HeatmapDescriptor<LocalDate> getHeatmapDescriptor() {
+        return heatmapDescriptor;
+    }
+}

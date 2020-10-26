@@ -1,0 +1,102 @@
+{
+  "firstMonth": "2012-06",
+  "heatmapColorHex": "CCDDAA",
+  "heatmaps": [
+    {
+      "name": "default",
+      "dimensions": {
+        "width": 200,
+        "height": 170
+      },
+      "center": {
+        "longitude": -2.8,
+        "latitude": 52.3
+      },
+      "boxSize": 0.046
+    },
+    {
+      "name": "wirral",
+      "dimensions": {
+        "width": 250,
+        "height": 190
+      },
+      "center": {
+        "longitude": -3,
+        "latitude": 53.375
+      },
+      "boxSize": 0.0017
+    },
+    {
+      "name": "didcot",
+      "dimensions": {
+        "width": 250,
+        "height": 190
+      },
+      "center": {
+        "longitude": -1.27,
+        "latitude": 51.595
+      },
+      "boxSize": 0.00075
+    },
+    {
+      "name": "south",
+      "dimensions": {
+        "width": 250,
+        "height": 190
+      },
+      "center": {
+        "longitude": -0.7,
+        "latitude": 51.6
+      },
+      "boxSize": 0.0065
+    },
+    {
+      "name": "galapagos",
+      "dimensions": {
+        "width": 250,
+        "height": 190
+      },
+      "center": {
+        "longitude": -90.5,
+        "latitude": 0.655
+      },
+      "boxSize": 0.01
+    },
+    {
+      "name": "ecuador",
+      "dimensions": {
+        "width": 250,
+        "height": 190
+      },
+      "center": {
+        "longitude": -77.8,
+        "latitude": 0.238
+      },
+      "boxSize": 0.01
+    },
+    {
+      "name": "wales",
+      "dimensions": {
+        "width": 160,
+        "height": 170
+      },
+      "center": {
+        "longitude": -3.8,
+        "latitude": 52.4
+      },
+      "boxSize": 0.021
+    },
+    {
+      "name": "north-wales",
+      "dimensions": {
+        "width": 200,
+        "height": 140
+      },
+      "center": {
+        "longitude": -3.6,
+        "latitude": 53
+      },
+      "boxSize": 0.012
+    }
+  ]
+}
