@@ -16,6 +16,7 @@ import uk.co.ticklethepanda.carto.loaders.google.GoogleLocationGeodeticDataLoade
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Configuration
@@ -24,19 +25,19 @@ public class HeatmapConfig {
     private static final Logger LOG = LogManager.getLogger();
 
     @Bean(name = "heatmapProjector")
-    public HeatmapProjector<LocalDate> heatmapProjector(
+    public HeatmapProjector<LocalDateTime> heatmapProjector(
             @Value("${location.history.file.path}") String filePath,
             @Value("${location.history.accuracyThreshold}") long accuracyThreshold,
             Projector projector
     ) throws GeodeticDataLoadException, FileNotFoundException {
-        GeodeticDataLoader<LongLat, LocalDate> dataLoader = new GoogleLocationGeodeticDataLoader(new FileReader(filePath), accuracyThreshold);
+        GeodeticDataLoader<LongLat, LocalDateTime> dataLoader = new GoogleLocationGeodeticDataLoader(new FileReader(filePath), accuracyThreshold);
 
         LOG.info("Loading map data");
-        List<PointData<LongLat, LocalDate>> history = dataLoader.load();
+        List<PointData<LongLat, LocalDateTime>> history = dataLoader.load();
         LOG.info("Loaded map data");
 
         LOG.info("Creating projection using " + projector.getClass().getName());
-        HeatmapProjector<LocalDate> p = HeatmapProjector.createProjection(projector, history);
+        HeatmapProjector<LocalDateTime> p = HeatmapProjector.createProjection(projector, history);
         LOG.info("Created projection");
 
         return p;

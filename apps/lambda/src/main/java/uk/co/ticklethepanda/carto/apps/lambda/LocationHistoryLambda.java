@@ -20,10 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.YearMonth;
+import java.time.*;
 import java.util.*;
 import java.util.List;
 import java.util.function.Predicate;
@@ -49,21 +46,21 @@ public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
             HeatmapLambdaConfiguration configuration = createConfigFromObject(configObject);
 
             HeatmapImagePainter painter = createPainterFromConfig(configuration);
-            HeatmapProjector<LocalDate> projector = createProjectorFromObject(historyObject);
-            Map<String, Predicate<LocalDate>> filters = getFilters(configuration);
+            var projector = createProjectorFromObject(historyObject);
+            var filters = getFilters(configuration);
 
             context.getLogger().log("INFO: finished loading and setup");
 
             for (HeatmapConfiguration config : configuration.getHeatmaps()) {
-                for(Map.Entry<String, Predicate<LocalDate>> filter : filters.entrySet()) {
+                for(var filter : filters.entrySet()) {
 
                     String imageKey = "location-history/" + config.getName() + "-" + filter.getKey() + ".png";
 
                     context.getLogger().log("INFO: generating heatmap - " + imageKey);
 
-                    HeatmapDescriptor<LocalDate> descriptor = config.with(filter.getValue());
+                    var descriptor = config.with(filter.getValue());
 
-                    Heatmap<LocalDate> heatmap = projector.project(descriptor);
+                    var heatmap = projector.project(descriptor);
 
                     context.getLogger().log("INFO: generated heatmap, painting image - " + imageKey);
 
@@ -102,7 +99,7 @@ public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
         return gson.fromJson(new InputStreamReader(object.getObjectContent()), HeatmapLambdaConfiguration.class);
     }
 
-    private HeatmapProjector<LocalDate> createProjectorFromObject(S3Object object) throws IOException {
+    private HeatmapProjector<LocalDateTime> createProjectorFromObject(S3Object object) throws IOException {
         String historyEncoding = object.getObjectMetadata().getContentEncoding();
 
         Reader reader;
@@ -114,7 +111,7 @@ public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
 
         GoogleLocationGeodeticDataLoader loader = new GoogleLocationGeodeticDataLoader(reader, -1);
 
-        List<PointData<LongLat, LocalDate>> points = loader.load();
+        List<PointData<LongLat, LocalDateTime>> points = loader.load();
 
         return HeatmapProjector.createProjection(
                 new SphericalPsuedoMercatorProjector(), points
@@ -127,8 +124,8 @@ public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
         return new HeatmapImagePainter(new HeatmapColourPicker.Monotone(new Color(colorHex)));
     }
 
-    private Map<String, Predicate<LocalDate>> getFilters(HeatmapLambdaConfiguration config) {
-        Map<String, Predicate<LocalDate>> filters = new HashMap<>();
+    private Map<String, Predicate<LocalDateTime>> getFilters(HeatmapLambdaConfiguration config) {
+        Map<String, Predicate<LocalDateTime>> filters = new HashMap<>();
 
         filters.put("all", ignored -> true);
 

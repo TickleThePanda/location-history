@@ -10,47 +10,47 @@ import java.util.function.Predicate;
 @Service
 public class LocalDateFilterFactory {
 
-    private Map<Object, Predicate<LocalDate>> filterMap = new HashMap<>();
+    private Map<Object, Predicate<LocalDateTime>> filterMap = new HashMap<>();
 
-    public Predicate<LocalDate> get(DayOfWeek dayOfWeek) {
+    public Predicate<LocalDateTime> get(DayOfWeek dayOfWeek) {
         if (filterMap.containsKey(dayOfWeek)) {
             return filterMap.get(dayOfWeek);
         }
 
-        Predicate<LocalDate> filter = localDate -> localDate.getDayOfWeek().equals(dayOfWeek);
+        Predicate<LocalDateTime> filter = localDate -> localDate.getDayOfWeek().equals(dayOfWeek);
         filterMap.put(dayOfWeek, filter);
 
         return filter;
     }
 
-    public Predicate<LocalDate> get(Month month) {
+    public Predicate<LocalDateTime> get(Month month) {
         if (filterMap.containsKey(month)) {
             return filterMap.get(month);
         }
 
-        Predicate<LocalDate> filter = localDate -> localDate.getMonth().equals(month);
+        Predicate<LocalDateTime> filter = localDate -> localDate.getMonth().equals(month);
         filterMap.put(month, filter);
 
         return filter;
     }
 
-    public Predicate<LocalDate> get(int year) {
+    public Predicate<LocalDateTime> get(int year) {
         if (filterMap.containsKey(year)) {
             return filterMap.get(year);
         }
 
-        Predicate<LocalDate> filter = localDate -> localDate.getYear() == year;
+        Predicate<LocalDateTime> filter = localDate -> localDate.getYear() == year;
         filterMap.put(year, filter);
 
         return filter;
     }
 
-    public Predicate<LocalDate> get(YearMonth yearMonth) {
+    public Predicate<LocalDateTime> get(YearMonth yearMonth) {
         if (filterMap.containsKey(yearMonth)) {
             return filterMap.get(yearMonth);
         }
 
-        Predicate<LocalDate> filter = localDate -> YearMonth.from(localDate).equals(yearMonth);
+        Predicate<LocalDateTime> filter = localDate -> YearMonth.from(localDate).equals(yearMonth);
         filterMap.put(yearMonth, filter);
 
         return filter;

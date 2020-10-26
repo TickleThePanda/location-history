@@ -20,8 +20,8 @@ public class HeatmapConfiguration {
         this.boxSize = boxSize;
     }
 
-    public HeatmapDescriptor<LocalDate> with(Predicate<LocalDate> filter) {
-        return new HeatmapDescriptor<>(dimensions, center, boxSize, filter);
+    public <T> HeatmapDescriptor<T> with(Predicate<T> filter) {
+        return new HeatmapDescriptor<T>(dimensions, center, boxSize, filter);
     }
 
     public HeatmapDimensions getDimensions() {

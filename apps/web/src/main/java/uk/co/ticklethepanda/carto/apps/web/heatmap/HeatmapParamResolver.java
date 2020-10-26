@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.function.Predicate;
 
 /**
@@ -35,7 +36,7 @@ public class HeatmapParamResolver {
         return resolve(dto, null);
     }
 
-    public HeatmapParams resolve(HeatmapRequestDto dto, Predicate<LocalDate> filter) {
+    public HeatmapParams resolve(HeatmapRequestDto dto, Predicate<LocalDateTime> filter) {
         String name = dto.getName();
         if(name == null) {
             name = "default";
@@ -47,7 +48,7 @@ public class HeatmapParamResolver {
         LongLat center = resolveLongLat(name, dto.getLongitude(), dto.getLatitude());
         Float scale = resolveScale(name, dto.getScale());
 
-        HeatmapDescriptor<LocalDate> descriptor = new HeatmapDescriptor<>(dimensions, center, scale, filter);
+        HeatmapDescriptor<LocalDateTime> descriptor = new HeatmapDescriptor<>(dimensions, center, scale, filter);
 
         Integer pixelSize = resolvePixelSize(name, dto.getPixelSize());
 

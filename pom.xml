@@ -31,6 +31,7 @@
 
         <module>apps/web</module>
         <module>apps/lambda</module>
+        <module>apps/stats</module>
     </modules>
 
     <build>

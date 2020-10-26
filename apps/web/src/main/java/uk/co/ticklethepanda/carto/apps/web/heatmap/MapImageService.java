@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class MapImageService {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    private final HeatmapProjector<LocalDate> heatmapProjector;
+    private final HeatmapProjector<LocalDateTime> heatmapProjector;
     private final WorldMapDrawer worldMapDrawer;
     private final MapTheme theme;
 
@@ -36,7 +37,7 @@ public class MapImageService {
 
     @Autowired
     public MapImageService(
-            HeatmapProjector<LocalDate> heatmapProjector,
+            HeatmapProjector<LocalDateTime> heatmapProjector,
             WorldMapDrawer worldMapDrawer,
             MapTheme theme
     ) throws IOException {
@@ -51,7 +52,7 @@ public class MapImageService {
 
     @Cacheable("heatmap-image")
     public byte[] getHeatmapImage(
-            HeatmapDescriptor<LocalDate> heatmapDescriptor,
+            HeatmapDescriptor<LocalDateTime> heatmapDescriptor,
             int pixelsPerBlock
     ) throws IOException {
 
