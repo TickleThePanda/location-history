@@ -1,5 +1,7 @@
 package uk.co.ticklethepanda.carto.apps.web.heatmap;
 
+import uk.co.ticklethepanda.carto.apps.web.geocoding.GeocodingClient;
+import uk.co.ticklethepanda.carto.apps.web.geocoding.GeocodingClientException;
 import uk.co.ticklethepanda.carto.apps.web.named.NamedLocations;
 import uk.co.ticklethepanda.carto.core.heatmap.HeatmapDescriptor;
 import uk.co.ticklethepanda.carto.core.heatmap.HeatmapDimensions;
@@ -18,17 +20,21 @@ import java.util.function.Predicate;
 @Component
 public class HeatmapParamResolver {
 
-    private NamedLocations namedLocations;
+    private final GeocodingClient geocodingClient;
+    
+    private final NamedLocations namedLocations;
 
-    private Float maxScale;
+    private final Float maxScale;
 
     @Autowired
     public HeatmapParamResolver(
             NamedLocations namedLocations,
-            @Value("${location.history.heatmap.minScale}") Float maxScale
+            @Value("${location.history.heatmap.minScale}") Float maxScale,
+            GeocodingClient client
     ) throws IOException {
         this.namedLocations = namedLocations;
         this.maxScale = maxScale;
+        this.geocodingClient = client;
     }
 
     public HeatmapParams resolve(HeatmapRequestDto dto) {
@@ -44,7 +50,7 @@ public class HeatmapParamResolver {
         verify(dto);
 
         HeatmapDimensions dimensions = resolveDimensions(name, dto.getWidth(), dto.getHeight());
-        LongLat center = resolveLongLat(name, dto.getLongitude(), dto.getLatitude());
+        LongLat center = resolveLongLat(name, dto.getSearch(), dto.getLongitude(), dto.getLatitude());
         Float scale = resolveScale(name, dto.getScale());
 
         HeatmapDescriptor<LocalDateTime> descriptor = new HeatmapDescriptor<>(dimensions, center, scale, filter);
@@ -55,10 +61,12 @@ public class HeatmapParamResolver {
     }
 
     private void verify(HeatmapRequestDto dto) {
-        if(dto.getLongitude() != null ^ dto.getLatitude() != null) {
-            throw new IllegalArgumentException("Both longitude and latitude must be specified if either is specified");
+        if (dto.getLongitude() != null ^ dto.getLatitude() != null) {
+            throw new IllegalArgumentException(
+                    "Both longitude and latitude must be specified if either is specified"
+            );
         }
-
+        
         if(dto.getWidth() != null ^ dto.getHeight() != null) {
             throw new IllegalArgumentException("Both width and height must be specified if either is specified");
         }
@@ -69,7 +77,7 @@ public class HeatmapParamResolver {
     }
 
     private HeatmapDimensions resolveDimensions(String name, Integer width, Integer height) {
-        if(width == null && height == null) {
+        if (width == null && height == null) {
             return new HeatmapDimensions(
                     namedLocations.getLocations().get(name).getWidth(),
                     namedLocations.getLocations().get(name).getHeight());
@@ -78,11 +86,17 @@ public class HeatmapParamResolver {
         }
     }
 
-    private LongLat resolveLongLat(String name, Float longitude, Float latitude) {
-        if(longitude == null && latitude == null) {
+    private LongLat resolveLongLat(String name, String query, Float longitude, Float latitude) {
+        if(longitude == null && latitude == null && query == null) {
             return new LongLat(
                     namedLocations.getLocations().get(name).getCenter().getLongitude(),
                     namedLocations.getLocations().get(name).getCenter().getLatitude());
+        } else if (query != null) {
+            try {
+                return geocodingClient.query(query);
+            } catch (GeocodingClientException e) {
+                throw new RuntimeException("Unable to fetch geocoding info");
+            }
         } else {
             return new LongLat(longitude, latitude);
         }

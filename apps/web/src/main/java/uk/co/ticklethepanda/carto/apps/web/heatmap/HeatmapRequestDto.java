@@ -11,6 +11,8 @@ public class HeatmapRequestDto implements Serializable {
 
     private Float pixelSize;
 
+    private String search;
+    
     private Float longitude;
     private Float latitude;
     private Float scale;
@@ -39,6 +41,9 @@ public class HeatmapRequestDto implements Serializable {
         this.latitude = latitude;
     }
 
+    public void setSearch(String search) {
+        this.search = search;
+    }
     public void setScale(Float scale) {
         this.scale = scale;
     }
@@ -71,4 +76,7 @@ public class HeatmapRequestDto implements Serializable {
         return pixelSize;
     }
 
+    public String getSearch() {
+        return search;
+    }
 }
