@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 
 public class HeatmapParams {
     private final HeatmapDescriptor<LocalDateTime> heatmapDescriptor;
-    private final int pixelSize;
+    private final float pixelSize;
 
-    public HeatmapParams(HeatmapDescriptor<LocalDateTime> heatmapDescriptor, int pixelSize) {
+    public HeatmapParams(HeatmapDescriptor<LocalDateTime> heatmapDescriptor, float pixelSize) {
         this.heatmapDescriptor = heatmapDescriptor;
         this.pixelSize = pixelSize;
     }
 
-    public int getPixelSize() {
+    public float getPixelSize() {
         return pixelSize;
     }
 

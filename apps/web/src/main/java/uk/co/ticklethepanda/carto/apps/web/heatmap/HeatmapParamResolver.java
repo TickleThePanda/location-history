@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.function.Predicate;
 
@@ -50,7 +49,7 @@ public class HeatmapParamResolver {
 
         HeatmapDescriptor<LocalDateTime> descriptor = new HeatmapDescriptor<>(dimensions, center, scale, filter);
 
-        Integer pixelSize = resolvePixelSize(name, dto.getPixelSize());
+        Float pixelSize = resolvePixelSize(name, dto.getPixelSize());
 
         return new HeatmapParams(descriptor, pixelSize);
     }
@@ -97,7 +96,7 @@ public class HeatmapParamResolver {
         }
     }
 
-    private Integer resolvePixelSize(String name, Integer pixelSize) {
+    private Float resolvePixelSize(String name, Float pixelSize) {
         if(pixelSize == null) {
             return namedLocations.getLocations().get(name).getPixelSize();
         } else {

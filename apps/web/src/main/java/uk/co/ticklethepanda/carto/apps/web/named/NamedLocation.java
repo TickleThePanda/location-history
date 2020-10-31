@@ -5,7 +5,7 @@ public class NamedLocation {
     private Integer width;
     private Integer height;
 
-    private Integer pixelSize;
+    private Float pixelSize;
 
     private NamedLocationLongLat center;
 
@@ -19,7 +19,7 @@ public class NamedLocation {
         this.height = height;
     }
 
-    public void setPixelSize(Integer pixelSize) {
+    public void setPixelSize(Float pixelSize) {
         this.pixelSize = pixelSize;
     }
 
@@ -39,7 +39,7 @@ public class NamedLocation {
         return scale;
     }
 
-    public Integer getPixelSize() {
+    public Float getPixelSize() {
         return pixelSize;
     }
 

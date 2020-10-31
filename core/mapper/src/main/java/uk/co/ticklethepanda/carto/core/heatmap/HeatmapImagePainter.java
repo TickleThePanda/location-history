@@ -16,17 +16,23 @@ public class HeatmapImagePainter {
         this.colourPicker = colourPicker;
     }
 
-    public BufferedImage paintHeatmap(Heatmap heatmap, int blockSize) {
+    public BufferedImage paintHeatmap(Heatmap heatmap, float blockSize) {
 
         HeatmapDimensions dimensions = heatmap.getDescriptor().getDimensions();
 
-        BufferedImage bi = new BufferedImage(dimensions.getWidth() * blockSize,
-                dimensions.getHeight() * blockSize, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bi = new BufferedImage((int) Math.ceil(dimensions.getWidth() * blockSize),
+                (int) Math.ceil(dimensions.getHeight() * blockSize), BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g2d = bi.createGraphics();
 
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
 
         paintMap(heatmap, blockSize, g2d);
 
@@ -47,7 +53,7 @@ public class HeatmapImagePainter {
 
     private void paintMap(
             Heatmap heatmap,
-            int blockSize,
+            float blockSize,
             Graphics2D g2d) {
         HeatmapDimensions dimensions = heatmap.getDescriptor().getDimensions();
         float maxNumber = getHighestNumber(heatmap);

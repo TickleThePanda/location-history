@@ -9,7 +9,7 @@ public class HeatmapRequestDto implements Serializable {
     private Integer width;
     private Integer height;
 
-    private Integer pixelSize;
+    private Float pixelSize;
 
     private Float longitude;
     private Float latitude;
@@ -27,7 +27,7 @@ public class HeatmapRequestDto implements Serializable {
         this.height = height;
     }
 
-    public void setPixelSize(Integer pixelSize) {
+    public void setPixelSize(Float pixelSize) {
         this.pixelSize = pixelSize;
     }
 
@@ -67,7 +67,7 @@ public class HeatmapRequestDto implements Serializable {
         return scale;
     }
 
-    public Integer getPixelSize() {
+    public Float getPixelSize() {
         return pixelSize;
     }
 

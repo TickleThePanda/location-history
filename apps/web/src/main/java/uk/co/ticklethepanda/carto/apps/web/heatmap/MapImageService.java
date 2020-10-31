@@ -53,11 +53,11 @@ public class MapImageService {
     @Cacheable("heatmap-image")
     public byte[] getHeatmapImage(
             HeatmapDescriptor<LocalDateTime> heatmapDescriptor,
-            int pixelsPerBlock
+            float pixelsPerBlock
     ) throws IOException {
 
-        int imageWidth = heatmapDescriptor.getDimensions().getWidth() * pixelsPerBlock;
-        int imageHeight = heatmapDescriptor.getDimensions().getHeight() * pixelsPerBlock;
+        int imageWidth = (int) Math.ceil(heatmapDescriptor.getDimensions().getWidth() * pixelsPerBlock);
+        int imageHeight = (int) Math.ceil(heatmapDescriptor.getDimensions().getHeight() * pixelsPerBlock);
 
         MapDescriptor mapDescriptor = new MapDescriptor(
                 new ImageDimensions(imageWidth, imageHeight),
