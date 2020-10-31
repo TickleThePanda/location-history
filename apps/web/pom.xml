@@ -16,7 +16,7 @@
 
     <properties>
         <start-class>uk.co.ticklethepanda.carto.apps.web.Application</start-class>
-        <spring.boot.version>2.0.3.RELEASE</spring.boot.version>
+        <spring.boot.version>2.3.4.RELEASE</spring.boot.version>
     </properties>
 
     <dependencyManagement>
@@ -44,6 +44,7 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -89,7 +90,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.3.4.RELEASE</version>
+                <version>${spring.boot.version}</version>
+                <configuration>
+                    <arguments>--enable-preview</arguments>
+                    <jvmArguments>--enable-preview</jvmArguments>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
