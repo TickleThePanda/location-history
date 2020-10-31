@@ -15,7 +15,10 @@ public class MapThemeConfig {
         @Value("${map.colors.country.outline}") Integer outlineHex,
         @Value("${map.colors.country.fill}") Integer fillHex,
         @Value("${map.colors.heat.base}") Integer heatHex,
+        @Value("${map.colors.heat.brightness.min:0.1}") Float heatMinBrightness,
+        @Value("${map.colors.heat.brightness.max:0.9}") Float heatMaxBrightness,
         @Value("${map.colors.water}") Integer waterHex,
+        @Value("${map.colors.background}") Integer backgroundHex,
         @Value("${map.countries.enabled}") boolean enabled
     ) {
 
@@ -23,7 +26,12 @@ public class MapThemeConfig {
         final Color waterColor = new Color(waterHex);
         final Color outlineColor = new Color(outlineHex);
         final Color fillColor = new Color(fillHex);
+        final Color backgroundColor = new Color(backgroundHex);
 
-        return new MapTheme(outlineColor, fillColor, waterColor, heatColor, enabled);
+        return new MapTheme(
+                new MapTheme.HeatmapTheme(heatColor, heatMinBrightness, heatMaxBrightness),
+                new MapTheme.WorldMapTheme(fillColor, waterColor, outlineColor, enabled),
+                backgroundColor
+        );
     }
 }

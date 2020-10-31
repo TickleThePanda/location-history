@@ -33,17 +33,17 @@ public class MapImageService {
     private final WorldMapDrawer worldMapDrawer;
     private final MapTheme theme;
 
-    private HeatmapImagePainter heatmapPainter;
+    private final HeatmapImagePainter heatmapPainter;
 
     @Autowired
     public MapImageService(
             HeatmapProjector<LocalDateTime> heatmapProjector,
             WorldMapDrawer worldMapDrawer,
             MapTheme theme
-    ) throws IOException {
+    ) {
         this.theme = theme;
         this.heatmapPainter = new HeatmapImagePainter(
-                new HeatmapColourPicker.Monotone(theme.getHeatColor())
+                new HeatmapColourPicker.Monotone(theme.getHeatColor(), theme.getMinBrightness(), theme.getMaxBrightness())
         );
 
         this.heatmapProjector = heatmapProjector;
@@ -79,6 +79,8 @@ public class MapImageService {
                 BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g = (Graphics2D) all.getGraphics();
+        g.setBackground(theme.getBackgroundColor());
+        g.clearRect(0, 0, imageWidth, imageHeight);
         images.forEach(image -> g.drawImage(image, 0, 0, null));
 
         return convertImageToArray(all);
