@@ -1,0 +1,23 @@
+FROM maven:3-openjdk-14 AS build-image
+
+ARG APP_DIR=/app
+WORKDIR ${APP_DIR}
+
+COPY pom.xml ./
+COPY apps apps
+COPY core core
+
+RUN mvn clean package
+
+FROM openjdk:14-alpine
+
+ARG APP_DIR=/app
+WORKDIR ${APP_DIR}
+
+COPY --from=build-image /app/apps/lambda/target/location-history-lambda.jar ./
+
+RUN which java
+
+ENTRYPOINT [ "/opt/openjdk-14/bin/java", "--enable-preview", "-cp", "/app/*", "com.amazonaws.services.lambda.runtime.api.client.AWSLambda" ]
+CMD [ "uk.co.ticklethepanda.carto.apps.lambda::LocationHistoryLambda" ]
+
