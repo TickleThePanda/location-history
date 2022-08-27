@@ -4,7 +4,6 @@ terraform {
       source = "hashicorp/aws"
       version = ">=4.28"
     }
-
   }
   cloud {
     organization = "TickleThePanda"
@@ -18,17 +17,15 @@ terraform {
 
 provider "aws" {
   region = "eu-central-1"
+
+  default_tags {
+    tags = {
+      TerraformManaged = "True"
+    }
+  }
 }
 
 resource "aws_s3_bucket" "location_history" {
-  tags = {
-    Managed = "true"
-  }
-
-  tags_all = {
-    Managed = "true"
-  }
-
   arn            = "arn:aws:s3:::location-history"
   bucket         = "location-history"
   hosted_zone_id = "Z21DNDUVLTQW6Q"
