@@ -23,7 +23,7 @@ public class Heatmap<T> implements Serializable {
         return heatmapArray == null ? null : heatmapArray.clone();
     }
 
-    public HeatmapDescriptor getDescriptor() {
+    public HeatmapDescriptor<T> getDescriptor() {
         return this.descriptor;
     }
 

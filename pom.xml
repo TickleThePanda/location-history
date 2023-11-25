@@ -13,9 +13,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <java.version>14</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 
         <junit.jupiter.version>5.1.0</junit.jupiter.version>
         <junit.platform.version>1.1.0</junit.platform.version>
@@ -39,29 +39,7 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
-                    <configuration>
-                        <compilerId>frgaal</compilerId>
-
-                        <release>${java.version}</release>
-                        <source>${java.version}</source>
-
-                        <target>1.8</target>
-
-                        <compilerArgs>
-                            <arg>-Xlint:deprecation</arg>
-                            <arg>--enable-preview</arg>
-                        </compilerArgs>
-                        <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                    </configuration>
-
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.frgaal</groupId>
-                            <artifactId>compiler-maven-plugin</artifactId>
-                            <version>14.0.2</version>
-                        </dependency>
-                    </dependencies>
+                    <version>3.11.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>

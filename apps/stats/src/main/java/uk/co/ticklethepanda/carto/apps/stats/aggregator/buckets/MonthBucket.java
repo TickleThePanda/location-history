@@ -2,7 +2,6 @@ package uk.co.ticklethepanda.carto.apps.stats.aggregator.buckets;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class MonthBucket implements DateBucket, Comparable<MonthBucket> {

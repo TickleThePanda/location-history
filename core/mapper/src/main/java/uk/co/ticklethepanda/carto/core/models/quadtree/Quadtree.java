@@ -149,6 +149,7 @@ public class Quadtree<P extends Point, E> implements PointDataCollection<P, E> {
                 extraCentreX, extraCentreY,
                 newWidth, newHeight);
 
+        @SuppressWarnings(“unchecked”)
         children = new Quadtree[4];
 
         children[NW] = new Quadtree<>(nwRect, nodeMaxStorage);

@@ -1,6 +1,9 @@
 target
 *.iml
 .idea
+.vscode
+
+bin/
 
 *.gif
 *.jpg

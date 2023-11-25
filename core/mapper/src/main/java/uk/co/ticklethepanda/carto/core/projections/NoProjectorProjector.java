@@ -4,7 +4,6 @@ import uk.co.ticklethepanda.carto.core.projection.LongLat;
 import uk.co.ticklethepanda.carto.core.projection.EuclidPoint;
 import uk.co.ticklethepanda.carto.core.projection.Projector;
 
-@SuppressWarnings("unused")
 public class NoProjectorProjector implements Projector {
 
     @Override

@@ -16,7 +16,7 @@ public class HeatmapImagePainter {
         this.colourPicker = colourPicker;
     }
 
-    public BufferedImage paintHeatmap(Heatmap heatmap, float blockSize) {
+    public <T> BufferedImage paintHeatmap(Heatmap<T> heatmap, float blockSize) {
 
         HeatmapDimensions dimensions = heatmap.getDescriptor().getDimensions();
 
@@ -39,7 +39,7 @@ public class HeatmapImagePainter {
         return bi;
     }
 
-    private static float getHighestNumber(Heatmap array) {
+    private static <T> float getHighestNumber(Heatmap<T> array) {
         HeatmapDimensions dimensions = array.getDescriptor().getDimensions();
         float maxNumber = 0;
         for (int x = 0; x < dimensions.getWidth(); x++) {
@@ -51,8 +51,8 @@ public class HeatmapImagePainter {
         return maxNumber;
     }
 
-    private void paintMap(
-            Heatmap heatmap,
+    private <T> void paintMap(
+            Heatmap<T> heatmap,
             float blockSize,
             Graphics2D g2d) {
         HeatmapDimensions dimensions = heatmap.getDescriptor().getDimensions();

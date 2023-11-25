@@ -9,7 +9,6 @@ import uk.co.ticklethepanda.carto.loaders.google.internal.GoogleLocations;
 
 import java.io.BufferedReader;
 import java.io.Reader;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

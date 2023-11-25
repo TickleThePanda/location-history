@@ -1,8 +1,5 @@
 package uk.co.ticklethepanda.carto.loaders.google.internal;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -10,8 +7,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GoogleLocations {
-
-    private static final Logger LOG = LogManager.getLogger();
 
     public class Filterer {
         private List<Predicate<GoogleLocation>> filters = new ArrayList<>();
