@@ -27,6 +27,7 @@
 
     <modules>
         <module>core/mapper</module>
+        <module>core/runner</module>
         <module>core/loaders/google</module>
 
         <module>apps/web</module>

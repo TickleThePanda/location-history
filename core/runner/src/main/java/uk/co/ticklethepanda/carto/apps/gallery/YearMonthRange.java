@@ -1,9 +1,9 @@
-package uk.co.ticklethepanda.carto.apps.lambda;
+package uk.co.ticklethepanda.carto.apps.gallery;
 
 import java.time.YearMonth;
 import java.util.Iterator;
 
-class YearMonthRange implements Iterable<YearMonth> {
+public class YearMonthRange implements Iterable<YearMonth> {
 
     public static YearMonthRange between(YearMonth start, YearMonth end) {
         return new YearMonthRange(start, end);

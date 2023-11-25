@@ -1,20 +1,19 @@
-package uk.co.ticklethepanda.carto.apps.lambda;
+package uk.co.ticklethepanda.carto.apps.gallery;
 
 import uk.co.ticklethepanda.carto.core.heatmap.HeatmapDescriptor;
 import uk.co.ticklethepanda.carto.core.heatmap.HeatmapDimensions;
 import uk.co.ticklethepanda.carto.core.projection.LongLat;
 
-import java.time.LocalDate;
 import java.util.function.Predicate;
 
-public class HeatmapConfiguration {
+public class HeatmapWindow {
 
     private String name;
     private HeatmapDimensions dimensions;
     private LongLat center;
     private float boxSize;
 
-    public HeatmapConfiguration(HeatmapDimensions dimensions, LongLat center, float boxSize) {
+    public HeatmapWindow(HeatmapDimensions dimensions, LongLat center, float boxSize) {
         this.dimensions = dimensions;
         this.center = center;
         this.boxSize = boxSize;

@@ -10,20 +10,17 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import uk.co.ticklethepanda.carto.core.heatmap.*;
+
+import uk.co.ticklethepanda.carto.apps.gallery.GalleryBuilder;
+import uk.co.ticklethepanda.carto.apps.gallery.GalleryConfig;
 import uk.co.ticklethepanda.carto.core.model.PointData;
 import uk.co.ticklethepanda.carto.core.projection.LongLat;
 import uk.co.ticklethepanda.carto.core.projections.SphericalPsuedoMercatorProjector;
 import uk.co.ticklethepanda.carto.loaders.google.GoogleLocationGeodeticDataLoader;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.time.*;
-import java.util.*;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.zip.*;
 
 public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
@@ -35,71 +32,50 @@ public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
     public Void handleRequest(S3Event s3Event, Context context) {
 
         try {
-
             AmazonS3 client = AmazonS3ClientBuilder.defaultClient();
-
             S3Object configObject = client.getObject(CONFIGURATION_BUCKET, "config.json");
             S3Object historyObject = client.getObject(CONFIGURATION_BUCKET, "history.json");
 
-            context.getLogger().log("INFO: got history and config objects");
+            GalleryBuilder builder = new GalleryBuilder(
+                () -> this.loadPoints(historyObject),
+                () -> this.createConfigFromObject(configObject),
+                galleryImage -> {
 
-            HeatmapLambdaConfiguration configuration = createConfigFromObject(configObject);
+                    var heatmapName = galleryImage.combination().config().getName();
+                    var filterName = galleryImage.combination().name();
 
-            HeatmapImagePainter painter = createPainterFromConfig(configuration);
-            var projector = createProjectorFromObject(historyObject);
-            var filters = getFilters(configuration);
-
-            context.getLogger().log("INFO: finished loading and setup");
-
-            for (HeatmapConfiguration config : configuration.getHeatmaps()) {
-                for(var filter : filters.entrySet()) {
-
-                    String imageKey = "location-history/" + config.getName() + "-" + filter.getKey() + ".png";
-
-                    context.getLogger().log("INFO: generating heatmap - " + imageKey);
-
-                    var descriptor = config.with(filter.getValue());
-
-                    var heatmap = projector.project(descriptor);
-
-                    context.getLogger().log("INFO: generated heatmap, painting image - " + imageKey);
-
-                    BufferedImage image = painter.paintHeatmap(heatmap, 4);
-
-                    context.getLogger().log("INFO: generated image, writing to stream - " + imageKey);
-
-                    InputStream stream = getImageAsStream(image);
-
-                    context.getLogger().log("INFO: about to write image - " + imageKey);
+                    String imageKey = "location-history/" + heatmapName + "-" + filterName + ".png";
 
                     ObjectMetadata metadata = new ObjectMetadata();
                     metadata.setContentType("image/png");
                     metadata.setCacheControl("max-age: 86400");
 
-                    PutObjectRequest request = new PutObjectRequest(RESULTS_BUCKET, imageKey, stream, metadata)
+                    PutObjectRequest request = new PutObjectRequest(RESULTS_BUCKET, imageKey, galleryImage.stream(), metadata)
                             .withCannedAcl(CannedAccessControlList.PublicRead);
 
                     client.putObject(request);
-
                 }
-            }
+            );
 
+            builder.build(new SphericalPsuedoMercatorProjector());
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
 
+            
             context.getLogger().log("ERROR: unable to process location history data: " + e.toString() + '\n' + sw.toString());
         }
+        
         return null;
     }
 
-    private HeatmapLambdaConfiguration createConfigFromObject(S3Object object) {
+    private GalleryConfig createConfigFromObject(S3Object object) {
         Gson gson = new GsonBuilder().create();
-        return gson.fromJson(new InputStreamReader(object.getObjectContent()), HeatmapLambdaConfiguration.class);
+        return gson.fromJson(new InputStreamReader(object.getObjectContent()), GalleryConfig.class);
     }
 
-    private HeatmapProjector<LocalDateTime> createProjectorFromObject(S3Object object) throws IOException {
+    private List<PointData<LongLat, LocalDateTime>> loadPoints(S3Object object) throws IOException {
         String historyEncoding = object.getObjectMetadata().getContentEncoding();
 
         Reader reader;
@@ -111,56 +87,6 @@ public class LocationHistoryLambda implements RequestHandler<S3Event, Void> {
 
         GoogleLocationGeodeticDataLoader loader = new GoogleLocationGeodeticDataLoader(reader, -1);
 
-        List<PointData<LongLat, LocalDateTime>> points = loader.load();
-
-        return HeatmapProjector.createProjection(
-                new SphericalPsuedoMercatorProjector(), points
-        );
-    }
-
-    private HeatmapImagePainter createPainterFromConfig(HeatmapLambdaConfiguration config) {
-        String colorHexString = config.getHeatmapColorHex();
-        int colorHex = Integer.parseInt(colorHexString, 16);
-        return new HeatmapImagePainter(new HeatmapColourPicker.Monotone(new Color(colorHex)));
-    }
-
-    private Map<String, Predicate<LocalDateTime>> getFilters(HeatmapLambdaConfiguration config) {
-        Map<String, Predicate<LocalDateTime>> filters = new HashMap<>();
-
-        filters.put("all", ignored -> true);
-
-        for (DayOfWeek dow : DayOfWeek.values()) {
-            filters.put(dow.toString().toLowerCase(), date -> date.getDayOfWeek().equals(dow));
-        }
-
-        for (Month month : Month.values()) {
-            filters.put(month.toString().toLowerCase(), date -> date.getMonth().equals(month));
-        }
-
-        YearMonthRange yearMonths = YearMonthRange.between(
-                YearMonth.parse(config.getFirstMonth()),
-                YearMonth.from(LocalDate.now())
-        );
-
-        for (YearMonth yearMonth: yearMonths) {
-            filters.put(yearMonth.toString().toLowerCase(), date -> YearMonth.from(date).equals(yearMonth));
-        }
-
-        return filters;
-    }
-
-    private InputStream getImageAsStream(BufferedImage image) {
-        try {
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(5000);
-
-            ImageIO.write(image, "png", outputStream);
-
-            byte[] bytes = outputStream.toByteArray();
-
-            return new ByteArrayInputStream(bytes);
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to write images.", e);
-        }
+        return loader.load();
     }
 }
