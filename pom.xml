@@ -17,9 +17,6 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
 
-        <junit.jupiter.version>5.1.0</junit.jupiter.version>
-        <junit.platform.version>1.1.0</junit.platform.version>
-
         <tests.excluded.tags>slow</tests.excluded.tags>
 
         <log4j.version>2.17.1</log4j.version>
@@ -31,6 +28,7 @@
         <module>core/loaders/google</module>
 
         <module>apps/web</module>
+        <module>apps/cloudrun</module>
         <module>apps/lambda</module>
         <module>apps/stats</module>
     </modules>
@@ -41,29 +39,20 @@
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.11.0</version>
+                    <configuration>
+                        <compilerArgs>--enable-preview</compilerArgs>
+                        <release>21</release>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.19.1</version>
+                    <version>3.2.2</version>
                     <configuration>
                         <argLine>--enable-preview</argLine>
-                        <includes>
-                            <include>**/Test*.java</include>
-                            <include>**/*Test.java</include>
-                            <include>**/*Tests.java</include>
-                            <include>**/*TestCase.java</include>
-                        </includes>
                         <properties>
                             <excludeTags>${tests.excluded.tags}</excludeTags>
                         </properties>
                     </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.junit.platform</groupId>
-                            <artifactId>junit-platform-surefire-provider</artifactId>
-                            <version>${junit.platform.version}</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -71,18 +60,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${junit.jupiter.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
-                <version>${junit.jupiter.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
@@ -99,6 +76,13 @@
                 <artifactId>log4j-core</artifactId>
                 <version>${log4j.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.10.1</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
