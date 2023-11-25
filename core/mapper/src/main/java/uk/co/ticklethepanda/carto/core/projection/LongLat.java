@@ -21,7 +21,7 @@ public record LongLat(float longitude, float latitude) implements Point {
     }
 
     public float getDistanceInMetersTo(LongLat that) {
-        	
+        
         double R = 6371e3; // metres
         double φ1 = this.latitude * Math.PI / 180.0; // φ, λ in radians
         double φ2 = that.latitude * Math.PI / 180.0;

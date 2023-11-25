@@ -90,7 +90,7 @@ public class Quadtree<P extends Point, E> implements PointDataCollection<P, E> {
         if (!shape.intersects(this.boundingRectangle)) {
             return 0;
         }
-
+        
         int count = 0;
 
         if (points != null) {
@@ -149,8 +149,9 @@ public class Quadtree<P extends Point, E> implements PointDataCollection<P, E> {
                 extraCentreX, extraCentreY,
                 newWidth, newHeight);
 
-        @SuppressWarnings(“unchecked”)
-        children = new Quadtree[4];
+        @SuppressWarnings("unchecked")
+        Quadtree<P, E>[] _children = new Quadtree[4];
+        this.children = _children;
 
         children[NW] = new Quadtree<>(nwRect, nodeMaxStorage);
         children[NE] = new Quadtree<>(neRect, nodeMaxStorage);
@@ -159,7 +160,7 @@ public class Quadtree<P extends Point, E> implements PointDataCollection<P, E> {
 
         for (Map.Entry<P, List<E>> point : points.entrySet()) {
 
-            for(E data : point.getValue()) {
+            for (E data : point.getValue()) {
                 children[NW].add(point.getKey(), data);
                 children[NE].add(point.getKey(), data);
                 children[SE].add(point.getKey(), data);
