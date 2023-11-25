@@ -26,7 +26,7 @@ public class GalleryBuilder {
 
     @FunctionalInterface
     public static interface GalleryImageWriter {
-        public void writeImage(GalleryImage image);
+        public void writeImage(GalleryImage image) throws IOException;
     }
 
     private GalleryImageWriter imageWriter;
@@ -47,14 +47,29 @@ public class GalleryBuilder {
         var config = configProvider.getConfig();
         var points = pointsProvider.getPoints();
 
-        this
-            .getImageIterator(
-                projector,
-                points,
-                config
-            )
-            .forEachRemaining(image -> imageWriter.writeImage(image));
+        class RuntimeIOException extends RuntimeException {
+            public RuntimeIOException(GalleryImage image, IOException e) {
+                super("Unable to write image " + image, e);
+            }
+        }
 
+        try {
+            this
+                .getImageIterator(
+                    projector,
+                    points,
+                    config
+                )
+                .forEachRemaining(image -> {
+                    try {
+                        imageWriter.writeImage(image);
+                    } catch (IOException e) {
+                        throw new RuntimeIOException(image, e);
+                    }
+                });
+        } catch (RuntimeIOException ioException) {
+            throw new IOException("Failed to write image", ioException.getCause());
+        }
     }
 
     public Iterator<GalleryImage> getImageIterator(
