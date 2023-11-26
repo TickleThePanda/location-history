@@ -1,12 +1,11 @@
 
 resource "google_artifact_registry_repository" "location_history" {
-  location      = "europe-west1"
   repository_id = "ttp-location-history"
   description   = "Location history registry"
   format        = "DOCKER"
 }
 
-resource "google_cloud_run_v2_job" "location_history_builder" {
+resource "google_cloud_run_v2_job" "location_history_build_job" {
   name     = "location-history-builder"
   location = "europe-west1"
 
