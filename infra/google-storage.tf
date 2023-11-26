@@ -18,7 +18,7 @@ resource "google_storage_bucket" "history_gallery" {
 }
 
 resource "google_storage_bucket_iam_member" "history_gallery_public" {
-  bucket = google_storage_bucket.history_gallery_public.name
+  bucket = google_storage_bucket.history_gallery.name
   role   = "roles/storage.objectViewer"
   member = "allUsers"
 }
