@@ -14,3 +14,12 @@ terraform {
 
   required_version = ">=1.2.8"
 }
+provider "aws" {
+  region = "eu-central-1"
+
+  default_tags {
+    tags = {
+      TerraformManaged = "True"
+    }
+  }
+}
