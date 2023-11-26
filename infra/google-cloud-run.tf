@@ -13,7 +13,15 @@ resource "google_cloud_run_v2_job" "location_history_build_job" {
     template {
       containers {
         image = "${google_artifact_registry_repository.location_history.location}-docker.pkg.dev/${data.google_project.project.project_id}/${google_artifact_registry_repository.location_history.repository_id}/location-history:latest"
+        resources {
+          limits = {
+            memory = "4Gi"
+            cpu    = "1"
+          }
+
+        }
       }
+      max_retries = 0
     }
   }
 
@@ -22,4 +30,5 @@ resource "google_cloud_run_v2_job" "location_history_build_job" {
       launch_stage,
     ]
   }
+
 }
