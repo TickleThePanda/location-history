@@ -42,10 +42,10 @@ resource "google_compute_global_address" "default" {
 }
 
 resource "google_compute_managed_ssl_certificate" "lb_default" {
-  name     = "ticklethepanda-ssl-cert"
+  name     = "location-history-ticklethepanda-ssl-cert"
 
   managed {
-    domains = ["*.ticklethepanda.dev"]
+    domains = ["location-history.ticklethepanda.dev"]
   }
 }
 
