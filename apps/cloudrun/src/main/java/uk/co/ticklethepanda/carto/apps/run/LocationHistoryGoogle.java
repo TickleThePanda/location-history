@@ -1,5 +1,6 @@
 package uk.co.ticklethepanda.carto.apps.run;
 
+import com.google.cloud.storage.contrib.nio.CloudStorageFileSystem;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -21,8 +22,12 @@ import java.util.List;
 
 public class LocationHistoryGoogle {
 
-    private static final String CONFIGURATION_STORAGE_NAME = "location-history-config";
-    private static final String GALLERY_STORAGE_NAME = "location-history-gallery";
+    private static final String CONFIGURATION_STORAGE_NAME = "ttp-location-history-config";
+    private static final String GALLERY_STORAGE_NAME = "ttp-location-history-gallery";
+
+    private static final CloudStorageFileSystem CONFIG_FS = CloudStorageFileSystem
+            .forBucket(CONFIGURATION_STORAGE_NAME);
+    private static final CloudStorageFileSystem GALLERY_FS = CloudStorageFileSystem.forBucket(GALLERY_STORAGE_NAME);
 
     public static void main(String[] args) throws IOException {
 
@@ -37,9 +42,7 @@ public class LocationHistoryGoogle {
     }
 
     private static GalleryConfig loadConfig() throws JsonSyntaxException, JsonIOException, IOException {
-        var configLocation = String.format("gs://%s/config.json", CONFIGURATION_STORAGE_NAME);
-        var configUri = URI.create(configLocation);
-        var configPath = Paths.get(configUri);
+        var configPath = CONFIG_FS.getPath("config.json");
 
         var reader = new InputStreamReader(Files.newInputStream(configPath));
 
@@ -47,9 +50,7 @@ public class LocationHistoryGoogle {
     }
 
     private static List<PointData<LongLat, LocalDateTime>> readHistory() throws IOException {
-        var historyLocation = String.format("gs://%s/history.json", CONFIGURATION_STORAGE_NAME);
-        var historyUri = URI.create(historyLocation);
-        var historyPath = Paths.get(historyUri);
+        var historyPath = CONFIG_FS.getPath("history.json");
 
         var reader = new InputStreamReader(Files.newInputStream(historyPath));
         var loader = new GoogleLocationGeodeticDataLoader(reader, -1);
@@ -63,9 +64,8 @@ public class LocationHistoryGoogle {
         var filterName = image.getFilterName();
 
         var imageKey = "location-history/" + heatmapName + "-" + filterName + ".png";
-        var imageLocation = "gs://" + GALLERY_STORAGE_NAME + "/" + imageKey;
-        var imageUri = URI.create(imageLocation);
-        var imagePath = Paths.get(imageUri);
+
+        var imagePath = GALLERY_FS.getPath(imageKey);
 
         Files.copy(image.stream(), imagePath);
         
