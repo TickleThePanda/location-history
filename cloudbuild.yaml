@@ -1,0 +1,5 @@
+steps:
+ - name: 'gcr.io/cloud-builders/docker'
+   args: ['build', '-t', 'europe-west1-docker.pkg.dev/${PROJECT_ID}/ttp-location-history/location-history:latest', '.']
+
+images: ['europe-west1-docker.pkg.dev/${PROJECT_ID}/ttp-location-history/location-history:latest']

@@ -1,0 +1,22 @@
+name: build-image
+on: [push]
+jobs:
+  build:
+    steps:
+      - id: 'checkout'
+        uses: 'actions/checkout@v4'
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: 'projects/388566333789/locations/global/workloadIdentityPools/pool/providers/github'
+          service_account: 'location-history-docker@ticklethepanda-web.iam.gserviceaccount.com'
+        
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          version: '>= 363.0.0'
+
+      - name: 'Trigger build'
+        run: 'gcloud builds submit .'
