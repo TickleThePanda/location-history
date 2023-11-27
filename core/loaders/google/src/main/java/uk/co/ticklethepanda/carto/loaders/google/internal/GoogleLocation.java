@@ -1,32 +1,27 @@
 package uk.co.ticklethepanda.carto.loaders.google.internal;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 
 public class GoogleLocation implements Serializable {
-    private long timestampMs;
+    private LocalDateTime timestamp;
     private long latitudeE7;
     private long longitudeE7;
     private long accuracy;
 
     public LocalDate getDate() {
-        return LocalDate.from(
-                Instant.ofEpochMilli(this.getTimestampMs())
-                        .atZone(ZoneId.of("UTC")));
+        return LocalDate.from(timestamp);
     }
     
     public LocalDateTime getDateTime() {
-        return LocalDateTime.from(
-                Instant.ofEpochMilli(this.getTimestampMs())
-                        .atZone(ZoneId.of("UTC")));
+        return timestamp;
     }
 
     public long getTimestampMs() {
-        return timestampMs;
+        return timestamp.toEpochSecond(ZoneOffset.UTC);
     }
 
     public float getX() {

@@ -1,6 +1,8 @@
 package uk.co.ticklethepanda.carto.core.heatmap;
 
 import java.io.Serializable;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Heatmap<T> implements Serializable {
 
@@ -25,6 +27,10 @@ public class Heatmap<T> implements Serializable {
 
     public HeatmapDescriptor<T> getDescriptor() {
         return this.descriptor;
+    }
+
+    public int countPoints() {
+        return Stream.of(heatmapArray).mapToInt(row -> IntStream.of(row).sum()).sum();
     }
 
 }

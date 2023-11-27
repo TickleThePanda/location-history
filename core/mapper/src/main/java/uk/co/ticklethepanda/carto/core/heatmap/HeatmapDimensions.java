@@ -34,4 +34,10 @@ public class HeatmapDimensions {
         result = 31 * result + height;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "HeatmapDimensions [width=" + width + ", height=" + height + "]";
+    }
+
 }

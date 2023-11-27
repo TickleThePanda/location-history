@@ -4,12 +4,20 @@ import uk.co.ticklethepanda.carto.core.model.PointData;
 import uk.co.ticklethepanda.carto.core.projection.LongLat;
 import uk.co.ticklethepanda.carto.core.loader.GeodeticDataLoader;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+
 import uk.co.ticklethepanda.carto.loaders.google.internal.GoogleLocation;
 import uk.co.ticklethepanda.carto.loaders.google.internal.GoogleLocations;
 
+import java.awt.Window.Type;
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,8 +45,13 @@ public class GoogleLocationGeodeticDataLoader implements GeodeticDataLoader<Long
     @Override
     public List<PointData<LongLat, LocalDateTime>> load() {
 
-        Gson gson = new Gson();
-
+        Gson gson = new GsonBuilder().registerTypeAdapter(
+                LocalDateTime.class,
+                (JsonDeserializer<LocalDateTime>) (json, type, jsonDeserializationContext) ->
+                    ZonedDateTime.parse(json.getAsJsonPrimitive().getAsString()).toLocalDateTime()
+            )
+            .create();
+            
         GoogleLocations locations = gson.fromJson(reader, GoogleLocations.class);
 
         Stream<GoogleLocation> stream = locations.getLocations().stream();

@@ -81,6 +81,10 @@ public class GalleryConfig {
         return new HeatmapImagePainter(new HeatmapColourPicker.Monotone(new Color(colorHex)));
     }
 
-
+    @Override
+    public String toString() {
+        return "GalleryConfig [firstMonth=" + firstMonth + ", heatmapColorHex=" + heatmapColorHex + ", heatmaps.size="
+                + heatmaps.size() + "]";
+    }
 
 }

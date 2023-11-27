@@ -6,6 +6,10 @@ import uk.co.ticklethepanda.carto.core.projection.LongLat;
 import uk.co.ticklethepanda.carto.core.projection.Projector;
 
 import javax.imageio.ImageIO;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.time.*;
@@ -13,6 +17,8 @@ import java.util.*;
 import java.util.List;
 
 public class GalleryBuilder {
+
+    private static final Logger LOG = LogManager.getLogger();
 
     @FunctionalInterface
     public static interface HistoryProvider {
@@ -97,8 +103,10 @@ public class GalleryBuilder {
                     )
             )
             .map(imageCombination -> {
+                LOG.info("Generating image for " + imageCombination);
                 var descriptor = imageCombination.config().with(imageCombination.filter());
                 var heatmap = projection.project(descriptor);
+                LOG.info("Found " + heatmap.countPoints() + " points in heatmap.");
                 BufferedImage bufferedImage = painter.paintHeatmap(heatmap, 4);
                 InputStream stream = getImageAsStream(bufferedImage);
                 return new GalleryImage(imageCombination, stream);    

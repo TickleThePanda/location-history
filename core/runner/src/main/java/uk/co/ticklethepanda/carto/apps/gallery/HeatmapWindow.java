@@ -42,4 +42,12 @@ public class HeatmapWindow {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "HeatmapWindow [name=" + name + ", dimensions=" + dimensions + ", center=" + center + ", boxSize="
+                + boxSize + "]";
+    }
+
+    
 }
