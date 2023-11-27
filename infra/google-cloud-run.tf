@@ -22,7 +22,7 @@ resource "google_cloud_run_v2_job" "location_history_build_job" {
         }
       }
       max_retries = 0
-      timeout = 86400
+      timeout = "86400s"
     }
   }
 
