@@ -15,6 +15,16 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-nio</artifactId>
@@ -46,7 +56,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -56,7 +65,10 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>uk.co.ticklethepanda.carto.apps.run.LocationHistoryGoogle</mainClass>
+                                    <manifestEntries>
+                                        <Main-Class>uk.co.ticklethepanda.carto.apps.run.LocationHistoryGoogle</Main-Class>
+                                        <Multi-Release>true</Multi-Release>
+                                    </manifestEntries>
                                 </transformer>
                             </transformers>
                             <filters>

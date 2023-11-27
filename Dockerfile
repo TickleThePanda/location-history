@@ -25,8 +25,9 @@ ARG APP_DIR=/app
 WORKDIR ${APP_DIR}
 
 COPY --from=build-image /app/apps/cloudrun/target/location-history-run.jar ./
+COPY config/log4j2.xml ./
 
 RUN which java
 
-ENTRYPOINT [ "java", "-jar", "location-history-run.jar" ]
+ENTRYPOINT [ "java", "-Dlog4j.configurationFile=./log4j2.xml", "-jar", "location-history-run.jar" ]
 
